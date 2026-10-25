@@ -1,0 +1,47 @@
+{
+  "name": "Reprendre les Commandes • Crises Fonctionnelles Dissociatives",
+  "short_name": "Anti-CFD",
+  "description": "Application médicale et psychoéducative pour la gestion des Crises Fonctionnelles Dissociatives (CFD), protocole d'aura, guide témoin et entraînement exécutif.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF9F6",
+  "theme_color": "#2B5C8F",
+  "lang": "fr",
+  "categories": ["medical", "health", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "🚨 SOS Aura Immédiate",
+      "short_name": "SOS Aura",
+      "description": "Lancer immédiatement l'ancrage sensoriel et le métronome de swap",
+      "url": "./index.html?view=aura",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "👥 Guide Témoin & Vidéo",
+      "short_name": "Aide Témoin",
+      "description": "Consignes de sécurité et caméra d'évaluation clinique",
+      "url": "./index.html?view=temoin",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

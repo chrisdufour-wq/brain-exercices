@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#2B5C8F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Anti-CFD">
+  <title>Reprendre les Commandes • Crises Fonctionnelles Dissociatives</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       Header Supérieur
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="brand-badge" onclick="switchView('landing')">
+      <span class="brand-dot"></span>
+      <span>Anti-CFD</span>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn-header-home" onclick="switchView('landing')">
+        🏠 Accueil
+      </button>
+      <button class="btn-header-home" onclick="openSettingsModal()" title="Contact d'urgence & réglages">
+        ⚙️
+      </button>
+      <button class="btn-header-home" id="btnThemeToggle" onclick="toggleAppTheme()" aria-label="Changer de thème">
+        🌙
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       Conteneur Principal
+       ======================================================================== -->
+  <main class="app-container">
+
+    <!-- ====================================================================
+         VUE 0 : ACCUEIL DIRECT (UNIQUEMENT LES 2 GROS BOUTONS MAJEURS)
+         ==================================================================== -->
+    <section id="view-landing" class="view-section active">
+      <div class="landing-hero-container">
+
+        <!-- CTA 1 : JE FAIS UNE AURA (PATIENT) -->
+        <div class="cta-huge-card cta-aura" onclick="openAuraHub()">
+          <span class="cta-huge-icon">⚡</span>
+          <div class="cta-huge-title">JE FAIS UNE AURA</div>
+          <div class="cta-huge-subtitle">
+            Engager le réseau exécutif maintenant (Calcul mental, Quizz, Stroop, Mouvements)
+          </div>
+        </div>
+
+        <!-- CTA 2 : JE SUIS TÉMOIN -->
+        <div class="cta-huge-card cta-temoin" onclick="startWitnessWizard()">
+          <span class="cta-huge-icon">👥</span>
+          <div class="cta-huge-title">JE SUIS TÉMOIN</div>
+          <div class="cta-huge-subtitle">
+            Mettre <span class="patient-name-display">Christophe</span> en sécurité & filmer la crise pour le médecin
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Liens secondaires épurés -->
+      <div style="margin-top: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        <button class="btn-secondary" style="font-size: 13px; padding: 12px 8px; text-align: center;" onclick="switchView('neuro')">
+          📖 Comprendre & Hygiène
+        </button>
+        <button class="btn-secondary" style="font-size: 13px; padding: 12px 8px; text-align: center;" onclick="switchView('journal')">
+          📓 Journal & Vidéos
+        </button>
+        <button class="btn-secondary" style="font-size: 13px; padding: 12px 8px; text-align: center;" onclick="openSettingsModal()">
+          📞 Contact d'Urgence
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VUE 1 : AURA HUB (UNIQUEMENT LES 4 GROS BOUTONS - ZÉRO TEXTE)
+         ==================================================================== -->
+    <section id="view-aura" class="view-section">
+      <div style="margin-bottom: 12px;">
+        <button class="btn-secondary" style="width: auto; padding: 6px 14px;" onclick="switchView('landing')">
+          ← Retour
+        </button>
+      </div>
+
+      <div class="aura-hub-grid-clean">
+        <!-- 1. Calcul mental séquentiel (-7) -->
+        <div class="btn-cen-task-clean" onclick="startCalcTask()">
+          <span class="task-card-icon">🔢</span>
+          <div class="task-card-title">Calcul Mental Séquentiel (−7)</div>
+        </div>
+
+        <!-- 2. Quizz Fluidité Sémantique -->
+        <div class="btn-cen-task-clean" onclick="startQuizzTask()">
+          <span class="task-card-icon">🔤</span>
+          <div class="task-card-title">Quizz Sémantique (Lettre au sort)</div>
+        </div>
+
+        <!-- 3. Test de Stroop -->
+        <div class="btn-cen-task-clean" onclick="startStroopTask()">
+          <span class="task-card-icon">🎯</span>
+          <div class="task-card-title">Test de Stroop (Inhibition)</div>
+        </div>
+
+        <!-- 4. Mouvements Asymétriques & Swap -->
+        <div class="btn-cen-task-clean" onclick="startSwapTask()">
+          <span class="task-card-icon">🖐️</span>
+          <div class="task-card-title">Mouvements Asymétriques & Métronome</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VUE 1-A : CALCUL MENTAL SÉQUENTIEL SANS RÉPONSE DIRECTE (-7)
+         ==================================================================== -->
+    <section id="view-calc-task" class="view-section">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <button class="btn-secondary" style="width: auto; padding: 6px 12px;" onclick="switchView('aura')">
+          ← Autre exercice
+        </button>
+        <span class="step-indicator" id="calcStepCounter">Calcul 1</span>
+      </div>
+
+      <div class="calc-fullscreen-box">
+        <span style="font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+          Nombre de départ :
+        </span>
+        <div class="calc-giant-number" id="calcStartNumberDisplay">45739</div>
+        
+        <div class="calc-operation-cue" id="calcOperationPrompt">
+          − 7
+        </div>
+
+        <button class="btn-calc-step-action" id="btnCalcDoneStep" onclick="handleCalcStepCompleted()">
+          ⚡ J'AI FAIT L'OPÉRATION (−7) ➔ CALCUL SUIVANT
+        </button>
+
+        <div class="calc-solution-reveal-box">
+          <button class="btn-reveal-solution" id="btnRevealCalcSolution" onclick="toggleCalcSolution()">
+            👁️ Vérifier la solution
+          </button>
+          <div class="calc-hidden-solution-text" id="calcSolutionText">
+            <!-- Uniquement le résultat chiffré -->
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-secondary" onclick="generateNewCalcNumber()">
+          🔄 Nouveau nombre de départ
+        </button>
+        <button class="btn-secondary" style="color: var(--color-sn); border-color: var(--color-sn);" onclick="finishCognitiveTask()">
+          ✅ Je me sens en contrôle ➔ Terminer
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VUE 1-B : QUIZZ FLUIDITÉ SÉMANTIQUE (LETTRE ALÉATOIRE)
+         ==================================================================== -->
+    <section id="view-quizz-task" class="view-section">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <button class="btn-secondary" style="width: auto; padding: 6px 12px;" onclick="switchView('aura')">
+          ← Autre exercice
+        </button>
+        <span class="badge-tag badge-aura">Défi Sémantique</span>
+      </div>
+
+      <div class="quizz-fullscreen-box">
+        <div class="quizz-category-title" id="quizzCategoryPrompt">
+          Citez à haute voix 3 noms d'ANIMAUX
+        </div>
+
+        <span style="font-size: 14px; color: var(--text-muted); font-weight: 600;">
+          Commençant par la lettre :
+        </span>
+
+        <div class="quizz-giant-letter" id="quizzLetterDisplay">G</div>
+
+        <button class="btn-calc-step-action" style="background-color: var(--color-aura); margin-top: 14px;" onclick="generateNewQuizzChallenge()">
+          ✅ DÉFI RÉUSSI ➔ NOUVELLE LETTRE
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-secondary" onclick="generateNewQuizzChallenge()">
+          🎲 Autre catégorie
+        </button>
+        <button class="btn-secondary" style="color: var(--color-sn); border-color: var(--color-sn);" onclick="finishCognitiveTask()">
+          ✅ Je me sens en contrôle ➔ Terminer
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VUE 1-C : TEST DE STROOP PLEIN ÉCRAN (BOUTONS COULEUR NEUTRE IDENTIQUE)
+         ==================================================================== -->
+    <section id="view-stroop-task" class="view-section">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <button class="btn-secondary" style="width: auto; padding: 6px 12px;" onclick="switchView('aura')">
+          ← Autre exercice
+        </button>
+        <span class="step-indicator" id="stroopRoundCounter">Essai 1</span>
+      </div>
+
+      <div class="stroop-immersive-box">
+        <span style="font-size: 15px; font-weight: 700; color: var(--text-muted);">
+          Nommez la COULEUR DE L'ENCRE (sans lire le mot) :
+        </span>
+
+        <div class="stroop-word-giant" id="stroopWord">VERT</div>
+
+        <!-- Les 4 boutons ont la même couleur neutre pour forcer l'inhibition cognitive -->
+        <div class="stroop-neutral-buttons-grid">
+          <button class="btn-stroop-neutral" onclick="submitStroopAnswer('ROUGE')">ROUGE</button>
+          <button class="btn-stroop-neutral" onclick="submitStroopAnswer('VERT')">VERT</button>
+          <button class="btn-stroop-neutral" onclick="submitStroopAnswer('BLEU')">BLEU</button>
+          <button class="btn-stroop-neutral" onclick="submitStroopAnswer('JAUNE')">JAUNE</button>
+        </div>
+      </div>
+
+      <button class="btn-secondary" style="color: var(--color-sn); border-color: var(--color-sn);" onclick="finishCognitiveTask()">
+        ✅ Je me sens en contrôle ➔ Terminer
+      </button>
+    </section>
+
+    <!-- ====================================================================
+         VUE 1-D : MOUVEMENTS ASYMÉTRIQUES ALÉATOIRES SANS NUMÉROTATION
+         ==================================================================== -->
+    <section id="view-swap-task" class="view-section">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <button class="btn-secondary" style="width: auto; padding: 6px 12px;" onclick="switchView('aura')">
+          ← Autre exercice
+        </button>
+        <button class="btn-secondary" style="width: auto; padding: 6px 12px;" onclick="pickRandomExercise()">
+          🎲 Autre mouvement
+        </button>
+      </div>
+
+      <div class="swap-fullscreen-card">
+        <h3 id="exTitle" style="color: var(--color-cen); font-size: 20px; font-weight: 800; margin-bottom: 2px;">Le Lapin et le Pistolet</h3>
+        <p id="exTarget" style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px;">Inhibition du réflexe de symétrie</p>
+
+        <!-- Indicateur de bascule Départ / Arrivée -->
+        <div class="swap-phase-indicator">
+          <div class="swap-phase-badge active-a" id="badgePhaseA">POSITION A (Départ)</div>
+          <div class="swap-phase-badge" id="badgePhaseB">POSITION B (Arrivée)</div>
+        </div>
+
+        <div class="swap-image-container">
+          <img id="exImage" src="illustrations/01_lapin_et_pistolet.jpg" alt="Mouvements asymétriques">
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); padding: 12px; border-radius: var(--radius-md); font-size: 14px; margin-bottom: 14px;">
+          <p style="margin-bottom: 4px;">👉 <span id="exDesc1">Main gauche : Lapin</span></p>
+          <p style="margin-bottom: 4px;">👉 <span id="exDesc2">Main droite : Pistolet</span></p>
+          <p style="margin: 0; font-weight: 700; color: var(--color-aura);">🔁 <span id="exSwapTip">Basculez à chaque bip / vibration !</span></p>
+        </div>
+
+        <button class="btn-primary" id="btnToggleSosMetronome" onclick="toggleSosMetronome()">
+          ▶️ Démarrer le Métronome de Swap
+        </button>
+      </div>
+
+      <button class="btn-secondary" style="color: var(--color-sn); border-color: var(--color-sn);" onclick="finishCognitiveTask()">
+        ✅ Je me sens en contrôle ➔ Terminer
+      </button>
+    </section>
+
+    <!-- ====================================================================
+         VUE 2 : GUIDE TÉMOIN PLEIN ÉCRAN (SÉCURITÉ & FILMAGE)
+         ==================================================================== -->
+    <section id="view-temoin" class="view-section">
+      <div class="witness-wizard-box">
+        
+        <div class="witness-wizard-header">
+          <span class="witness-step-badge" id="witnessStepBadge">Étape 1 / 8 • Sécurité</span>
+          <button class="witness-voice-btn active" id="btnWitnessVoiceToggle" onclick="toggleWitnessVoice()">
+            🔊 Consignes Vocales : ON
+          </button>
+        </div>
+
+        <div class="witness-progress-bar-container">
+          <div class="witness-progress-bar-fill" id="witnessProgressFill"></div>
+        </div>
+
+        <div id="witnessStepContainer"></div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VUE 3 : CONCLUSION TÉMOIN (RASSURER SANS ROMPRE SECRET & CONTACT)
+         ==================================================================== -->
+    <section id="view-temoin-conclusion" class="view-section">
+      <div class="witness-conclusion-box">
+        <span style="font-size: 42px;">🛡️</span>
+        <h2 style="color: var(--color-sn); font-size: 22px; margin: 8px 0;">Protocole d'Urgence Terminé</h2>
+        
+        <div class="witness-safe-info-banner">
+          <strong style="display: block; font-size: 16px; margin-bottom: 6px; color: var(--color-sn);">
+            Ce qu'il faut savoir pour les prochaines minutes :
+          </strong>
+          <p style="margin-bottom: 8px;">
+            • <span class="patient-name-display">Christophe</span> va reprendre progressivement ses esprits à son rythme.
+          </p>
+          <p style="margin-bottom: 8px;">
+            • <strong>Restez simplement auprès de lui(elle)</strong> dans le calme. Ne forcez pas la personne à parler ou à se relever trop vite.
+          </p>
+          <p style="margin: 0;">
+            • Cette manifestation est temporaire et réversible. L'appel des secours (15/112) n'est nécessaire qu'en cas de blessure physique ou de crise anormalement prolongée (&gt; 20 min).
+          </p>
+        </div>
+
+        <!-- Appel direct personne ressource -->
+        <a id="btnCallResourceContact" href="tel:0600000000" class="btn-call-emergency-contact">
+          📞 Appeler <span id="labelContactName">la personne ressource</span>
+        </a>
+
+        <!-- Bouton reprendre une vidéo -->
+        <button class="btn-secondary" style="margin-bottom: 12px; font-weight: 700;" onclick="restartWitnessFilming()">
+          📹 Reprendre une nouvelle vidéo
+        </button>
+
+        <button class="btn-primary" onclick="switchView('landing')">
+          🏠 Retour à l'accueil
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VUE 4 : PSYCHOÉDUCATION & LES 4 PILIERS DE L'HYGIÈNE DE VIE
+         ==================================================================== -->
+    <section id="view-neuro" class="view-section">
+      <div style="margin-bottom: 12px;">
+        <button class="btn-secondary" style="width: auto; padding: 6px 14px;" onclick="switchView('landing')">
+          ← Retour Accueil
+        </button>
+      </div>
+
+      <!-- Modèle neurobiologique saillance & réseau exécutif -->
+      <div class="psychoedu-salience-card">
+        <span class="badge-tag badge-cen">Modèle Neurophysiologique</span>
+        <h2 style="font-size: 20px;">Le Décrochage du Réseau Exécutif</h2>
+
+        <div class="psychoedu-quote-banner">
+          « Lorsque le <strong>système de saillance</strong> repère ce qu'il prend pour une anomalie (hypotension, tachycardie, extrasystole, vertige, aura migraineuse, douleur, flashback, etc.), il stimule alors massivement le <strong>réseau exécutif</strong> qui se désorganise s'il est déjà épuisé par le manque de sommeil ou le stress prolongé. »
+        </div>
+
+        <p style="font-size: 15px; font-weight: 700; color: var(--color-aura); margin-bottom: 16px;">
+          👉 Il est capital que vous amélioriez votre hygiène de vie au quotidien :
+        </p>
+
+        <!-- PILIER 1 : SOMMEIL -->
+        <div class="hygiene-pillar-card">
+          <h4>🛏️ 1. Assurer un sommeil de qualité</h4>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 6px;">
+            Régularité des horaires, reconditionnement lit = sommeil uniquement, et application stricte de la règle des 20 minutes.
+          </p>
+          <button class="btn-pillar-cta" onclick="openPillarModal('sommeil')">
+            ⏱️ Voir les consignes de sommeil & Minuteur 20 Min
+          </button>
+        </div>
+
+        <!-- PILIER 2 : GESTION DU STRESS & RESPIRATION -->
+        <div class="hygiene-pillar-card">
+          <h4>🫁 2. Diminuer votre stress</h4>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 6px;">
+            Régulation du système nerveux autonome : expiration passive bouche ouverte pour décrisper la cage thoracique et éviter l'hyperventilation.
+          </p>
+          <button class="btn-pillar-cta" onclick="openPillarModal('respiration')">
+            🌬️ Lancer la technique respiratoire apaisante
+          </button>
+        </div>
+
+        <!-- PILIER 3 : HYPOTENSION & SEL -->
+        <div class="hygiene-pillar-card">
+          <h4>💧 3. Lutter contre l'hypotension et les vertiges</h4>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 6px;">
+            Maintien de la volémie cérébrale : apport hydrique (2 à 3L/jour), alimentation salée et manœuvres physiques de contre-pression.
+          </p>
+          <button class="btn-pillar-cta" onclick="openPillarModal('hypotension')">
+            🧂 Voir les consignes neuro-végétatives (Sel, Eau, Contre-pression)
+          </button>
+        </div>
+
+        <!-- PILIER 4 : SPORT & ACTIVITÉ PHYSIQUE -->
+        <div class="hygiene-pillar-card">
+          <h4>🏃 4. Pratiquer un sport régulièrement</h4>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 6px;">
+            Renforcement de la neuroplasticité et stabilisation autonome par des activités aérobies douces et régulières.
+          </p>
+          <button class="btn-pillar-cta" onclick="openPillarModal('sport')">
+            🌲 Conseils d'activité physique (Marche nature, Natation)
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VUE 5 : JOURNAL LOCAL & VIDÉOTHÈQUE
+         ==================================================================== -->
+    <section id="view-journal" class="view-section">
+      <div style="margin-bottom: 12px;">
+        <button class="btn-secondary" style="width: auto; padding: 6px 14px;" onclick="switchView('landing')">
+          ← Retour Accueil
+        </button>
+      </div>
+
+      <div class="card">
+        <span class="badge-tag badge-cen">100% Hors-Ligne & Confidentiel</span>
+        <h2>Journal des Événements & Vidéos</h2>
+        <p style="font-size: 14px; margin-bottom: 16px;">
+          Toutes les données et vidéos enregistrées restent exclusivement sur cet appareil.
+        </p>
+        <div id="journalEntriesList"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       MODAL CAMÉRA PLEIN ÉCRAN
+       ======================================================================== -->
+  <div id="fullScreenCameraModal" class="fullscreen-camera-overlay">
+    <button class="btn-fsc-close" onclick="closeFullScreenCameraOverlay()">
+      ✕ Quitter
+    </button>
+
+    <div class="fsc-header">
+      <div class="fsc-instruction-pill" id="fscInstructionPill">
+        Consigne de filmage
+      </div>
+      <div class="fsc-timer-badge" id="fscTimerBadge">
+        ● REC 00:00
+      </div>
+    </div>
+
+    <video id="fscVideoPreview" autoplay playsinline muted></video>
+
+    <div class="fsc-footer">
+      <div class="fsc-footer-actions">
+        <button class="btn-fsc-flip" onclick="switchWitnessCameraFacing()" title="Changer d'objectif avant/arrière">
+          🔄
+        </button>
+        <button class="btn-fsc-record" id="btnFscRecord" onclick="toggleFscRecording()">
+          🔴 Enregistrer
+        </button>
+      </div>
+
+      <button class="btn-fsc-done" onclick="finishCurrentStepAndAdvance()">
+        ✅ C'EST FILMÉ ➔ ÉTAPE SUIVANTE
+      </button>
+    </div>
+  </div>
+
+  <input type="file" accept="video/*" capture="environment" id="nativeCameraInput" style="display: none;" onchange="handleNativeCameraFileSelected(event)">
+
+  <!-- ========================================================================
+       MODAL PILIERS HYGIÈNE DE VIE (SOMMEIL, RESPIRATION, HYPOTENSION, SPORT)
+       ======================================================================== -->
+  <div class="modal-overlay" id="pillarModal" onclick="if(event.target===this) closePillarModal()">
+    <div class="modal-sheet">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 id="pillarModalTitle" style="font-size: 18px; margin: 0;">Titre</h3>
+        <button style="background: none; border: none; font-size: 20px; cursor: pointer;" onclick="closePillarModal()">✕</button>
+      </div>
+      <div id="pillarModalContent"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL DE RÉGLAGES (PERSONNE RESSOURCE & PRÉNOM)
+       ======================================================================== -->
+  <div class="modal-overlay" id="settingsModal" onclick="if(event.target===this) closeSettingsModal()">
+    <div class="modal-sheet">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 18px; margin: 0;">⚙️ Contact d'Urgence & Profil</h3>
+        <button style="background: none; border: none; font-size: 20px; cursor: pointer;" onclick="closeSettingsModal()">✕</button>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label for="inputSettingPatientName" style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 4px;">Prénom du patient :</label>
+        <input type="text" id="inputSettingPatientName" value="Christophe" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 15px; font-weight: 700;">
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label for="inputSettingContactName" style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 4px;">Nom de la personne ressource (proche/médecin) :</label>
+        <input type="text" id="inputSettingContactName" value="Personne ressource" placeholder="Ex: Marie (Conjointe)" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 15px;">
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label for="inputSettingContactPhone" style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 4px;">Numéro de téléphone préprogrammé :</label>
+        <input type="tel" id="inputSettingContactPhone" value="0600000000" placeholder="Ex: 06 12 34 56 78" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 15px; font-family: var(--font-mono);">
+      </div>
+
+      <button class="btn-primary" onclick="saveSettingsFromModal()">
+        💾 Enregistrer les informations
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

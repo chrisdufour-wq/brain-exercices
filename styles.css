@@ -1,0 +1,995 @@
+/* ==========================================================================
+   Reprendre les Commandes • Styles PWA Mobile (CFD / Crises Dissociatives)
+   Conforme aux directives Antislop : lisibilité clinique, zéro surcharge.
+   ========================================================================== */
+
+:root {
+  --bg-page: #FAF9F6;
+  --bg-card: #FFFFFF;
+  --bg-card-subtle: #F3EFEA;
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --border-color: #E2DBD0;
+  --border-subtle: #EFE9E0;
+
+  /* Couleurs Neuro-Thérapeutiques */
+  --color-aura: #C25E3E;         /* Terracotta feutré (urgence patient) */
+  --color-aura-bg: #FDF3E7;
+  --color-cen: #2B5C8F;          /* Bleu Ardoise (réseau exécutif) */
+  --color-cen-bg: #EDF4FA;
+  --color-sn: #387654;           /* Vert Sauge (apaisement neuro-végétatif) */
+  --color-sn-bg: #EFF7F2;
+  --color-temoin: #9A3412;       /* Ambre foncé (aide témoin/sécurité) */
+  --color-temoin-bg: #FFF7ED;
+
+  --shadow-sm: 0 1px 3px rgba(30, 41, 59, 0.05);
+  --shadow-md: 0 4px 14px -2px rgba(30, 41, 59, 0.08);
+  --shadow-lg: 0 10px 25px -4px rgba(30, 41, 59, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-theme="dark"] {
+  --bg-page: #121824;
+  --bg-card: #1B2333;
+  --bg-card-subtle: #232E42;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border-color: #2E3B52;
+  --border-subtle: #253147;
+
+  --color-aura: #E07A5F;
+  --color-aura-bg: #2B1D1A;
+  --color-cen: #4D8BCE;
+  --color-cen-bg: #1A273A;
+  --color-sn: #56A376;
+  --color-sn-bg: #192A20;
+  --color-temoin: #F97316;
+  --color-temoin-bg: #301E13;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px -4px rgba(0, 0, 0, 0.5);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-base);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(env(safe-area-inset-top) + 60px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Header Minimaliste
+   ========================================================================== */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  padding: env(safe-area-inset-top) 16px 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-cen);
+}
+
+.btn-header-home {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   ACCUEIL : DIRECTEMENT LES 2 GROS BOUTONS SANS TEXTE SUPERFLU
+   ========================================================================== */
+.landing-hero-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0 24px 0;
+}
+
+.cta-huge-card {
+  border-radius: var(--radius-lg);
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  cursor: pointer;
+  text-align: left;
+  border: 2px solid transparent;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 155px;
+}
+
+.cta-huge-card:active {
+  transform: scale(0.98);
+}
+
+.cta-aura {
+  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+  border-color: #60A5FA;
+}
+
+.cta-temoin {
+  background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%);
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
+  border-color: #F87171;
+}
+
+.cta-huge-icon {
+  font-size: 38px;
+  margin-bottom: 12px;
+}
+
+.cta-huge-title {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  color: #FFFFFF;
+}
+
+.cta-huge-subtitle {
+  font-size: 15px;
+  font-weight: 500;
+  opacity: 0.95;
+  color: #FFFFFF;
+  line-height: 1.35;
+}
+
+/* ==========================================================================
+   Conteneur Principal & Vues
+   ========================================================================== */
+.app-container {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 16px 24px 16px;
+}
+
+.view-section {
+  display: none;
+  animation: fadeIn 0.16s ease-out;
+}
+
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   URGENCE AURA : UNIQUEMENT LES 4 GROS BOUTONS (ZÉRO TEXTE)
+   ========================================================================== */
+.aura-hub-grid-clean {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.btn-cen-task-clean {
+  background-color: var(--bg-card);
+  border: 2.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+  min-height: 95px;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-cen-task-clean:active {
+  transform: scale(0.98);
+  border-color: var(--color-cen);
+}
+
+.btn-cen-task-clean .task-card-icon {
+  font-size: 38px;
+  flex-shrink: 0;
+}
+
+.btn-cen-task-clean .task-card-title {
+  font-size: 21px;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+/* ==========================================================================
+   CALCUL MENTAL SÉQUENTIEL SANS RÉPONSE DIRECTE (-7)
+   ========================================================================== */
+.calc-fullscreen-box {
+  background-color: var(--bg-card);
+  border: 2px solid var(--color-cen);
+  border-radius: var(--radius-lg);
+  padding: 26px 16px;
+  text-align: center;
+  margin: 10px 0 20px 0;
+  box-shadow: var(--shadow-md);
+}
+
+.calc-giant-number {
+  font-size: 64px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: var(--color-cen);
+  letter-spacing: 0.05em;
+  margin: 10px 0 4px 0;
+}
+
+.calc-operation-cue {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--color-aura);
+  margin-bottom: 18px;
+}
+
+.btn-calc-step-action {
+  background-color: var(--color-cen);
+  color: #FFFFFF;
+  border: none;
+  font-size: 20px;
+  font-weight: 800;
+  padding: 18px 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  width: 100%;
+  min-height: 66px;
+  box-shadow: 0 4px 16px rgba(43, 92, 143, 0.4);
+}
+
+.btn-calc-step-action:active {
+  transform: scale(0.97);
+}
+
+.calc-solution-reveal-box {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.btn-reveal-solution {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.calc-hidden-solution-text {
+  display: none;
+  font-size: 40px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: var(--color-sn);
+  margin-top: 12px;
+  letter-spacing: 0.04em;
+}
+
+/* ==========================================================================
+   QUIZZ FLUIDITÉ SÉMANTIQUE (LETTRE ALÉATOIRE)
+   ========================================================================== */
+.quizz-fullscreen-box {
+  background-color: var(--bg-card);
+  border: 2px solid var(--color-aura);
+  border-radius: var(--radius-lg);
+  padding: 28px 18px;
+  text-align: center;
+  margin: 10px 0 20px 0;
+  box-shadow: var(--shadow-md);
+}
+
+.quizz-giant-letter {
+  font-size: 90px;
+  font-weight: 900;
+  color: var(--color-aura);
+  line-height: 1;
+  margin: 12px 0;
+}
+
+.quizz-category-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   STROOP PLEIN ÉCRAN (ESPACE OPTIMISÉ, BOUTONS COULEUR NEUTRE IDENTIQUE)
+   ========================================================================== */
+.stroop-immersive-box {
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px 18px 24px 18px;
+  text-align: center;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-md);
+}
+
+.stroop-word-giant {
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 20px 0;
+  line-height: 1.1;
+}
+
+.stroop-neutral-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+}
+
+/* Tous les boutons ont exactement la même apparence neutre */
+.btn-stroop-neutral {
+  min-height: 68px;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-card-subtle);
+  color: var(--text-primary); /* Même couleur neutre pour tous ! */
+  cursor: pointer;
+  transition: transform 0.08s ease, background-color 0.1s ease;
+}
+
+.btn-stroop-neutral:active {
+  transform: scale(0.96);
+  background-color: var(--border-color);
+}
+
+/* ==========================================================================
+   MOUVEMENTS ASYMÉTRIQUES ALÉATOIRES SANS NUMÉROTATION
+   ========================================================================== */
+.swap-fullscreen-card {
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.swap-phase-indicator {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.swap-phase-badge {
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 800;
+  border: 2px solid transparent;
+  flex: 1;
+  text-align: center;
+}
+
+.swap-phase-badge.active-a {
+  background-color: var(--color-aura-bg);
+  border-color: var(--color-aura);
+  color: var(--color-aura);
+}
+
+.swap-phase-badge.active-b {
+  background-color: var(--color-cen-bg);
+  border-color: var(--color-cen);
+  color: var(--color-cen);
+}
+
+.swap-image-container {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  margin: 14px 0;
+  text-align: center;
+}
+
+.swap-image-container img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ==========================================================================
+   PSYCHOÉDUCATION & HYGIÈNE DE VIE CLINIQUE (SAILLANCE, SOMMEIL, POTS, SPORT)
+   ========================================================================== */
+.psychoedu-salience-card {
+  background-color: var(--bg-card);
+  border: 2px solid var(--color-cen);
+  border-radius: var(--radius-lg);
+  padding: 22px 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.psychoedu-quote-banner {
+  background-color: var(--color-cen-bg);
+  border-left: 4px solid var(--color-cen);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 16px;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  margin: 14px 0 18px 0;
+}
+
+.hygiene-pillar-card {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.hygiene-pillar-card h4 {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-pillar-cta {
+  background-color: var(--bg-card-subtle);
+  border: 1.5px solid var(--border-color);
+  color: var(--color-cen);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   WIZARD TÉMOIN PLEIN ÉCRAN
+   ========================================================================== */
+.witness-wizard-box {
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.witness-wizard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.witness-step-badge {
+  background-color: var(--color-temoin-bg);
+  color: var(--color-temoin);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-temoin);
+}
+
+.witness-voice-btn {
+  background: var(--bg-card-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.witness-voice-btn.active {
+  background-color: #ECFDF5;
+  border-color: #10B981;
+  color: #047857;
+}
+
+.witness-progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-card-subtle);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.witness-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #DC2626, #F59E0B, #10B981);
+  width: 12%;
+  transition: width 0.3s ease;
+}
+
+.witness-step-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  justify-content: space-between;
+}
+
+.witness-instruction-title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+
+.witness-instruction-body {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 18px;
+}
+
+.witness-instruction-body strong {
+  color: var(--text-primary);
+}
+
+.witness-alert-box {
+  background-color: #FEF2F2;
+  border: 2px solid #EF4444;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  color: #991B1B;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .witness-alert-box {
+  background-color: #311313;
+  border-color: #DC2626;
+  color: #FCA5A5;
+}
+
+.btn-witness-confirm {
+  background-color: #059669;
+  color: #FFFFFF;
+  border: none;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 18px 22px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  width: 100%;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+  margin-top: 10px;
+}
+
+.btn-witness-confirm:active {
+  transform: scale(0.97);
+}
+
+.btn-witness-camera-cta {
+  background-color: #DC2626;
+  color: #FFFFFF;
+  border: none;
+  font-size: 19px;
+  font-weight: 800;
+  padding: 18px 22px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  width: 100%;
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45);
+  margin-bottom: 12px;
+}
+
+.witness-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn-witness-secondary {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   CONCLUSION TÉMOIN
+   ========================================================================== */
+.witness-conclusion-box {
+  background-color: var(--bg-card);
+  border: 2px solid var(--color-sn);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.witness-safe-info-banner {
+  background-color: var(--color-sn-bg);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin: 16px 0;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.btn-call-emergency-contact {
+  background-color: #059669;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 62px;
+  width: 100%;
+  margin: 16px 0 10px 0;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+}
+
+/* ==========================================================================
+   MODAL CAMÉRA PLEIN ÉCRAN
+   ========================================================================== */
+.fullscreen-camera-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: #000;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.fullscreen-camera-overlay.active {
+  display: flex;
+}
+
+.fullscreen-camera-overlay video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.fsc-header {
+  position: relative;
+  z-index: 10;
+  padding: calc(env(safe-area-inset-top) + 16px) 16px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+}
+
+.fsc-instruction-pill {
+  background-color: rgba(15, 23, 42, 0.92);
+  color: #FFF;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+  max-width: 90%;
+}
+
+.fsc-timer-badge {
+  background-color: rgba(220, 38, 38, 0.9);
+  color: #FFF;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 14px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.fsc-footer {
+  position: relative;
+  z-index: 10;
+  padding: 16px 16px calc(env(safe-area-inset-bottom) + 16px) 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+}
+
+.fsc-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn-fsc-flip {
+  background-color: rgba(30, 41, 59, 0.85);
+  color: #FFF;
+  border: 1px solid rgba(255,255,255,0.3);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-fsc-record {
+  background-color: #DC2626;
+  color: #FFF;
+  border: none;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-fsc-record.recording {
+  background-color: #1E293B;
+  border: 2px solid #DC2626;
+  animation: pulseRecording 1.2s infinite;
+}
+
+@keyframes pulseRecording {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.btn-fsc-done {
+  background-color: #059669;
+  color: #FFF;
+  border: none;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  width: 100%;
+  min-height: 58px;
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-fsc-close {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 14px);
+  left: 14px;
+  z-index: 20;
+  background-color: rgba(30, 41, 59, 0.8);
+  color: #FFF;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Boutons d'action généraux & Modals
+   ========================================================================== */
+.btn-primary {
+  background-color: var(--color-cen);
+  color: #FFFFFF;
+  border: none;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  width: 100%;
+}
+
+.btn-secondary {
+  background-color: var(--bg-card-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  font-weight: 600;
+  font-size: 14.5px;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 46px;
+  width: 100%;
+}
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.badge-cen { background-color: var(--color-cen-bg); color: var(--color-cen); }
+.badge-sn { background-color: var(--color-sn-bg); color: var(--color-sn); }
+.badge-aura { background-color: var(--color-aura-bg); color: var(--color-aura); }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-sheet {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px 20px;
+  box-shadow: var(--shadow-lg);
+}
