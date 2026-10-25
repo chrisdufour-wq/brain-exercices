@@ -52,6 +52,9 @@
       <span>Anti-CFD</span>
     </div>
     <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn-header-home" onclick="openQrModal()" title="Partager l'application (QR Code)">
+        📲 QR
+      </button>
       <button class="btn-header-home" onclick="switchView('landing')">
         🏠 Accueil
       </button>
@@ -535,13 +538,50 @@
         💾 Enregistrer les informations
       </button>
 
-      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Verrouillage praticien :</div>
-          <div style="font-size: 11px; color: var(--text-muted);">Code actif : 2527</div>
+      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-secondary" style="width: 100%; font-size: 13px;" onclick="closeSettingsModal(); openQrModal();">
+          📲 Afficher le QR Code d'accès testeur
+        </button>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Verrouillage praticien :</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Code actif : 2527</div>
+          </div>
+          <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="lockAppAccess()">
+            🔒 Verrouiller
+          </button>
         </div>
-        <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="lockAppAccess()">
-          🔒 Verrouiller
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Partage QR Code Testeur -->
+  <div class="modal-overlay" id="qrModal" onclick="if(event.target===this) closeQrModal()">
+    <div class="modal-sheet" style="text-align: center; max-width: 400px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 17px; margin: 0; font-weight: 800;">📲 Partager l'Application</h3>
+        <button style="background: none; border: none; font-size: 20px; cursor: pointer;" onclick="closeQrModal()">✕</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px 0; line-height: 1.4;">
+        Faites scanner ce QR Code avec l'appareil photo du smartphone du testeur ou patient :
+      </p>
+
+      <div style="background: white; padding: 14px; border-radius: var(--radius-md); display: inline-block; box-shadow: var(--shadow-sm); margin-bottom: 14px;">
+        <img src="icons/qr_code_testeur.png" alt="QR Code d'accès à l'application" style="width: 220px; height: 220px; display: block; margin: 0 auto; object-fit: contain;">
+      </div>
+
+      <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; margin-bottom: 16px; font-size: 11px; font-family: var(--font-mono); color: var(--text-primary); word-break: break-all;">
+        https://chrisdufour-wq.github.io/brain-exercices/?cle=2527
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-secondary" style="flex: 1; font-size: 13px;" onclick="copyShareLink()">
+          📋 Copier le lien
+        </button>
+        <button class="btn-primary" style="flex: 1; font-size: 13px;" onclick="closeQrModal()">
+          Fermer
         </button>
       </div>
     </div>

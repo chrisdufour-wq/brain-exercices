@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anti-cfd-cache-v2';
+const CACHE_NAME = 'anti-cfd-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
+  './icons/qr_code_testeur.png',
   './illustrations/01_lapin_et_pistolet.jpg',
   './illustrations/02_decompte_et_viseur.jpg',
   './illustrations/03_cercle_et_carre.jpg',
