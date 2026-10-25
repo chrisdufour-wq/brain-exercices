@@ -351,29 +351,6 @@ function lockAppAccess() {
   }
 }
 
-function openQrModal() {
-  const modal = document.getElementById('qrModal');
-  if (modal) modal.classList.add('active');
-}
-
-function closeQrModal() {
-  const modal = document.getElementById('qrModal');
-  if (modal) modal.classList.remove('active');
-}
-
-function copyShareLink() {
-  const url = 'https://chrisdufour-wq.github.io/brain-exercices/?cle=2527';
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url).then(() => {
-      alert('✅ Lien copié dans le presse-papier !');
-    }).catch(() => {
-      prompt('Copiez ce lien :', url);
-    });
-  } else {
-    prompt('Copiez ce lien :', url);
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   initAccessGate();
   initIndexedDB();
