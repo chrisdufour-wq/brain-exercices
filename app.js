@@ -278,7 +278,81 @@ function finishCognitiveTask() {
   switchView('landing');
 }
 
+// =============================================================================
+// VERROUILLAGE / CODE D'ACCÈS CLINIQUE PRATICIEN (2527)
+// =============================================================================
+const CLINICAL_ACCESS_CODE = '2527';
+
+function initAccessGate() {
+  const overlay = document.getElementById('gateLockOverlay');
+  if (!overlay) return;
+
+  // 1. Détection Magic Link via paramètre URL : ?cle=2527 ou ?code=2527 ou ?pin=2527
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramCode = urlParams.get('cle') || urlParams.get('code') || urlParams.get('token') || urlParams.get('pin');
+  if (paramCode && paramCode.trim() === CLINICAL_ACCESS_CODE) {
+    localStorage.setItem('cfd_app_unlocked', 'true');
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+
+  // 2. Vérification de la persistance locale
+  if (localStorage.getItem('cfd_app_unlocked') === 'true') {
+    overlay.classList.add('hidden');
+  } else {
+    overlay.classList.remove('hidden');
+    const pinInput = document.getElementById('gatePinInput');
+    if (pinInput) {
+      pinInput.value = '';
+      setTimeout(() => pinInput.focus(), 300);
+      pinInput.addEventListener('input', () => {
+        if (pinInput.value.length === 4) {
+          submitGateCode();
+        }
+      });
+      pinInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') submitGateCode();
+      });
+    }
+  }
+}
+
+function submitGateCode() {
+  const pinInput = document.getElementById('gatePinInput');
+  const errorMsg = document.getElementById('gateErrorMessage');
+  const overlay = document.getElementById('gateLockOverlay');
+  if (!pinInput || !overlay) return;
+
+  const entered = pinInput.value.trim();
+  if (entered === CLINICAL_ACCESS_CODE) {
+    localStorage.setItem('cfd_app_unlocked', 'true');
+    if (errorMsg) errorMsg.classList.add('hidden');
+    overlay.classList.add('hidden');
+    playSound('correct');
+  } else {
+    if (errorMsg) errorMsg.classList.remove('hidden');
+    pinInput.value = '';
+    pinInput.focus();
+    playSound('wrong');
+  }
+}
+
+function lockAppAccess() {
+  localStorage.removeItem('cfd_app_unlocked');
+  closeSettingsModal();
+  const overlay = document.getElementById('gateLockOverlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    const pinInput = document.getElementById('gatePinInput');
+    if (pinInput) {
+      pinInput.value = '';
+      setTimeout(() => pinInput.focus(), 200);
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initAccessGate();
   initIndexedDB();
   updateContactDisplayElements();
 

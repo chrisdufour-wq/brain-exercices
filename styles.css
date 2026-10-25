@@ -993,3 +993,119 @@ body {
   padding: 24px 20px;
   box-shadow: var(--shadow-lg);
 }
+
+/* =============================================================================
+   Écran de Verrouillage / Code Clinique Praticien (2527)
+   ============================================================================= */
+.gate-lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background-color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.gate-lock-overlay.hidden {
+  display: none !important;
+}
+
+.gate-lock-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.gate-lock-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.gate-lock-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.gate-lock-subtitle {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.gate-pin-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.gate-pin-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.gate-pin-input {
+  width: 190px;
+  height: 56px;
+  font-size: 28px;
+  letter-spacing: 12px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gate-pin-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(43, 92, 143, 0.15);
+}
+
+.gate-error-message {
+  font-size: 12px;
+  color: var(--color-danger);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.gate-error-message.hidden {
+  display: none;
+}
+
+.gate-unlock-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  font-size: 15px;
+}
+
+.gate-lock-footer {
+  margin-top: 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
