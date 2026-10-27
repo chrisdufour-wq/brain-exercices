@@ -49,23 +49,27 @@ function triggerHaptic(pattern = [40]) {
 }
 
 // =============================================================================
-// 2. Synthèse Vocale pour Consignes Témoin
+// 2. Synthèse Vocale pour Consignes Témoin (Optimisée iOS Safari & Mobile)
 // =============================================================================
 let isVoiceEnabled = true;
+let activeUtterance = null;
+let speechTimeout = null;
+
+function updateVoiceToggleBtn() {
+  const btn = document.getElementById('btnWitnessVoiceToggle');
+  if (btn) {
+    btn.className = isVoiceEnabled ? 'witness-voice-btn active' : 'witness-voice-btn';
+    btn.innerText = isVoiceEnabled ? '🔊 Consignes Vocales : ON' : '🔇 Consignes Vocales : OFF';
+  }
+}
 
 function toggleWitnessVoice() {
   isVoiceEnabled = !isVoiceEnabled;
-  const btn = document.getElementById('btnWitnessVoiceToggle');
-  if (btn) {
-    if (isVoiceEnabled) {
-      btn.classList.add('active');
-      btn.innerText = '🔊 Consignes Vocales : ON';
-      speakWitnessInstruction("Consignes vocales activées.");
-    } else {
-      btn.classList.remove('active');
-      btn.innerText = '🔇 Consignes Vocales : OFF';
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    }
+  updateVoiceToggleBtn();
+  if (isVoiceEnabled) {
+    speakWitnessInstruction("Consignes vocales activées.");
+  } else {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   }
   localStorage.setItem('anti_cfd_voice_enabled', isVoiceEnabled ? '1' : '0');
 }
@@ -73,14 +77,52 @@ function toggleWitnessVoice() {
 function speakWitnessInstruction(text) {
   if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
   try {
+    if (speechTimeout) clearTimeout(speechTimeout);
+
+    // Débloquer l'état en pause sur Safari iOS
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
+    // Annuler la diction précédente
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fr-FR';
-    utterance.rate = 0.95;
-    utterance.pitch = 1.0;
-    window.speechSynthesis.speak(utterance);
+
+    // Délai de 50ms impératif sur WebKit/Safari iOS pour que le cancel() asynchrone
+    // ne détruise pas l'instruction speak() suivante
+    speechTimeout = setTimeout(() => {
+      activeUtterance = new SpeechSynthesisUtterance(text);
+      activeUtterance.lang = 'fr-FR';
+      activeUtterance.rate = 0.95;
+      activeUtterance.pitch = 1.0;
+
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const frVoice = voices.find(v => v.lang === 'fr-FR' || v.lang.startsWith('fr'));
+        if (frVoice) activeUtterance.voice = frVoice;
+      }
+
+      activeUtterance.onend = () => {
+        activeUtterance = null;
+      };
+      activeUtterance.onerror = (e) => {
+        console.warn('Speech synthesis error:', e);
+        activeUtterance = null;
+      };
+
+      window.speechSynthesis.speak(activeUtterance);
+    }, 50);
   } catch (e) {
     console.warn('Synthèse vocale indisponible', e);
+  }
+}
+
+function replayCurrentWitnessVoice() {
+  const step = WITNESS_STEPS_CONFIG[witnessCurrentStepIndex];
+  if (step) {
+    isVoiceEnabled = true;
+    updateVoiceToggleBtn();
+    localStorage.setItem('anti_cfd_voice_enabled', '1');
+    speakWitnessInstruction(step.getVoiceText(getPatientName()));
   }
 }
 
@@ -259,6 +301,17 @@ function openAuraHub() {
 
 function startWitnessWizard() {
   witnessCurrentStepIndex = 0;
+  // Débloquer le synthétiseur vocal et le moteur audio sur le geste utilisateur tactile direct
+  if ('speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.resume();
+      const prime = new SpeechSynthesisUtterance(' ');
+      prime.volume = 0.01;
+      prime.rate = 10;
+      window.speechSynthesis.speak(prime);
+    } catch (e) {}
+  }
+  getAudioContext();
   switchView('temoin');
 }
 
@@ -933,7 +986,12 @@ function renderWitnessCurrentStep() {
   container.innerHTML = `
     <div class="witness-step-card">
       <div>
-        <h2 class="witness-instruction-title">${step.getTitle(name)}</h2>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+          <h2 class="witness-instruction-title" style="margin-bottom: 0; flex: 1;">${step.getTitle(name)}</h2>
+          <button class="btn-witness-secondary" style="width: auto; padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0;" onclick="replayCurrentWitnessVoice()" title="Réécouter la consigne">
+            🔊 Écouter
+          </button>
+        </div>
         <div class="witness-instruction-body">${step.getBody(name)}</div>
         ${cameraActionBlock}
       </div>
