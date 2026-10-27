@@ -99,20 +99,24 @@
 
       <!-- Liens secondaires responsive & hiérarchisés -->
       <div class="landing-secondary-container">
-        <!-- Bouton Journal & Vidéos : toute la largeur, plus étroit que les 2 CTA -->
-        <button class="btn-secondary btn-landing-journal" onclick="switchView('journal')">
-          <span style="font-size: 19px;">📓</span>
-          <span>Journal de bord & Vidéos</span>
-        </button>
+        <!-- Bouton Journal & Vidéos : bandeau pleine largeur, valorisé et confortable -->
+        <div class="btn-landing-journal" onclick="switchView('journal')">
+          <span class="landing-journal-icon">📓</span>
+          <div class="landing-journal-content">
+            <span class="landing-journal-title">Journal de bord & Vidéos</span>
+            <span class="landing-journal-subtitle">Noter un épisode • Suivi & Rapport médecin</span>
+          </div>
+          <span class="landing-journal-arrow">➔</span>
+        </div>
 
         <!-- Grille inférieure : Comprendre et Urgence placés en dessous -->
         <div class="landing-sub-grid">
           <button class="btn-secondary btn-landing-sub" onclick="switchView('neuro')">
-            <span>📖</span>
+            <span style="font-size: 16px;">📖</span>
             <span>Comprendre & Hygiène</span>
           </button>
           <button class="btn-secondary btn-landing-sub" onclick="openSettingsModal()">
-            <span>📞</span>
+            <span style="font-size: 16px;">📞</span>
             <span>Contact d'Urgence</span>
           </button>
         </div>
