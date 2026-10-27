@@ -53,7 +53,13 @@ function triggerHaptic(pattern = [40]) {
 // =============================================================================
 let isVoiceEnabled = true;
 let activeUtterance = null;
-let speechTimeout = null;
+
+// Préchargement préventif des voix de synthèse vocale pour iOS/Safari
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    try { window.speechSynthesis.getVoices(); } catch (e) {}
+  };
+}
 
 function updateVoiceToggleBtn() {
   const btn = document.getElementById('btnWitnessVoiceToggle');
@@ -77,40 +83,38 @@ function toggleWitnessVoice() {
 function speakWitnessInstruction(text) {
   if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
   try {
-    if (speechTimeout) clearTimeout(speechTimeout);
-
-    // Débloquer l'état en pause sur Safari iOS
+    // 1. Débloquer immédiatement l'état pause sur iOS Safari
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
     }
 
-    // Annuler la diction précédente
+    // 2. Annulation préalable
     window.speechSynthesis.cancel();
 
-    // Délai de 50ms impératif sur WebKit/Safari iOS pour que le cancel() asynchrone
-    // ne détruise pas l'instruction speak() suivante
-    speechTimeout = setTimeout(() => {
-      activeUtterance = new SpeechSynthesisUtterance(text);
-      activeUtterance.lang = 'fr-FR';
-      activeUtterance.rate = 0.95;
-      activeUtterance.pitch = 1.0;
+    // 3. Création synchrone de l'énoncé (impératif dans la pile d'exécution du clic utilisateur iOS)
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
 
-      const voices = window.speechSynthesis.getVoices();
-      if (voices && voices.length > 0) {
-        const frVoice = voices.find(v => v.lang === 'fr-FR' || v.lang.startsWith('fr'));
-        if (frVoice) activeUtterance.voice = frVoice;
-      }
+    // Référence globale permanente pour empêcher le Garbage Collector d'iOS de couper la parole
+    window._activeUtterance = utterance;
 
-      activeUtterance.onend = () => {
-        activeUtterance = null;
-      };
-      activeUtterance.onerror = (e) => {
-        console.warn('Speech synthesis error:', e);
-        activeUtterance = null;
-      };
+    const voices = window.speechSynthesis.getVoices();
+    if (voices && voices.length > 0) {
+      const frVoice = voices.find(v => v.lang === 'fr-FR' || v.lang.startsWith('fr'));
+      if (frVoice) utterance.voice = frVoice;
+    }
 
-      window.speechSynthesis.speak(activeUtterance);
-    }, 50);
+    utterance.onend = () => {
+      window._activeUtterance = null;
+    };
+    utterance.onerror = (e) => {
+      console.warn('Speech synthesis error:', e);
+      window._activeUtterance = null;
+    };
+
+    window.speechSynthesis.speak(utterance);
   } catch (e) {
     console.warn('Synthèse vocale indisponible', e);
   }
