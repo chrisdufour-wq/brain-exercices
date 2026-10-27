@@ -1202,8 +1202,41 @@ body {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   text-align: center;
+}
+
+/* Filtres rapides du Journal */
+.journal-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.btn-filter-pill {
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-filter-pill:hover {
+  border-color: var(--color-cen);
+  color: var(--text-primary);
+}
+
+.btn-filter-pill.active {
+  background-color: var(--color-cen);
+  color: #FFFFFF;
+  border-color: var(--color-cen);
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
 }
 
 .stat-chip-num {
@@ -1524,4 +1557,251 @@ body {
   font-size: 11.5px;
   color: #64748B;
   line-height: 1.5;
+}
+
+/* =============================================================================
+   EXPORT MODAL & STYLES PÉRIODES
+   ============================================================================= */
+.export-period-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.btn-period-pill {
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-period-pill.active {
+  background-color: var(--color-cen);
+  color: #FFFFFF;
+  border-color: var(--color-cen);
+}
+
+.export-metrics-box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 8px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric-val {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.metric-lbl {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* =============================================================================
+   IMPRESSION A4 CLINIQUE (@media print)
+   ============================================================================= */
+.print-clinical-container {
+  display: none !important;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm 12mm 14mm;
+  }
+
+  html, body {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Masquer tous les composants de l'application interactive */
+  #app-header,
+  main,
+  .modal-overlay,
+  .fullscreen-camera-overlay,
+  .fullscreen-video-overlay,
+  #gateLockOverlay,
+  button,
+  nav {
+    display: none !important;
+  }
+
+  /* Afficher uniquement la fiche clinique A4 */
+  .print-clinical-container {
+    display: block !important;
+    width: 100% !important;
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+  }
+
+  .print-header {
+    border-bottom: 2px solid #0284C7;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .print-title {
+    font-size: 15pt;
+    font-weight: 800;
+    color: #0369A1;
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .print-subtitle {
+    font-size: 9pt;
+    color: #475569;
+    margin: 0;
+  }
+
+  .print-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 9.5pt;
+  }
+
+  .print-meta-item strong {
+    color: #0F172A;
+  }
+
+  /* Cartouches d'indicateurs cliniques et jauges */
+  .print-gauges-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .print-gauge-card {
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 10px 12px;
+    text-align: center;
+    background: #FFFFFF;
+  }
+
+  .print-gauge-card.highlight {
+    border-color: #0284C7;
+    background: #F0F9FF;
+  }
+
+  .print-gauge-value {
+    font-size: 20pt;
+    font-weight: 900;
+    line-height: 1.1;
+    color: #0369A1;
+  }
+
+  .print-gauge-label {
+    font-size: 8pt;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .print-bar-container {
+    width: 100%;
+    height: 8px;
+    background: #E2E8F0;
+    border-radius: 999px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+
+  .print-bar-fill {
+    height: 100%;
+    background: #16A34A;
+    border-radius: 999px;
+  }
+
+  /* Tableau clinique crise par crise */
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin-top: 10px;
+  }
+
+  .print-table th {
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+    text-align: left;
+    padding: 6px 8px;
+    font-weight: 700;
+    border: 1px solid #0F172A;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-table td {
+    padding: 6px 8px;
+    border: 1px solid #CBD5E1;
+    vertical-align: top;
+    line-height: 1.35;
+  }
+
+  .print-table tr:nth-child(even) td {
+    background-color: #F8FAFC !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-badge-stopped {
+    font-weight: 700;
+    color: #15803D;
+  }
+
+  .print-badge-occurred {
+    font-weight: 700;
+    color: #B91C1C;
+  }
+
+  .print-footer {
+    margin-top: 20px;
+    padding-top: 8px;
+    border-top: 1px solid #CBD5E1;
+    font-size: 8pt;
+    color: #64748B;
+    display: flex;
+    justify-content: space-between;
+  }
 }

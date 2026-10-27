@@ -151,8 +151,25 @@ function replayCurrentWitnessVoice() {
 // =============================================================================
 // 3. Gestion du Patient & de la Personne Ressource
 // =============================================================================
-function getPatientName() {
+function getPatientFirstName() {
   return localStorage.getItem('anti_cfd_patient_name') || 'Christophe';
+}
+
+function getPatientLastName() {
+  return localStorage.getItem('anti_cfd_patient_lastname') || 'Dufour';
+}
+
+function getPatientFullName() {
+  const last = getPatientLastName().trim();
+  const first = getPatientFirstName().trim();
+  if (!last && !first) return 'Patient';
+  if (!last) return first;
+  if (!first) return last.toUpperCase();
+  return `${last.toUpperCase()} ${first}`;
+}
+
+function getPatientName() {
+  return getPatientFirstName();
 }
 
 function getResourceContact() {
@@ -164,17 +181,23 @@ function getResourceContact() {
 
 function updateContactDisplayElements() {
   const name = getPatientName();
+  const lastName = getPatientLastName();
   document.querySelectorAll('.patient-name-display').forEach(el => el.innerText = name);
 
   const contact = getResourceContact();
   const labelContact = document.getElementById('labelContactName');
   if (labelContact) labelContact.innerText = `${contact.name} (${contact.phone})`;
 
+  const labelWatchdog = document.getElementById('labelWatchdogContact');
+  if (labelWatchdog) labelWatchdog.innerText = `Appeler ${contact.name} (${contact.phone})`;
+
   const btnCall = document.getElementById('btnCallResourceContact');
   if (btnCall) btnCall.href = `tel:${contact.phone.replace(/\s+/g, '')}`;
 
   const inPat = document.getElementById('inputSettingPatientName');
   if (inPat) inPat.value = name;
+  const inPatLast = document.getElementById('inputSettingPatientLastName');
+  if (inPatLast) inPatLast.value = lastName;
   const inCName = document.getElementById('inputSettingContactName');
   if (inCName) inCName.value = contact.name;
   const inCPhone = document.getElementById('inputSettingContactPhone');
@@ -191,10 +214,14 @@ function closeSettingsModal() {
 }
 
 function saveSettingsFromModal() {
-  const pat = document.getElementById('inputSettingPatientName').value.trim();
+  const inPatLast = document.getElementById('inputSettingPatientLastName');
+  const inPat = document.getElementById('inputSettingPatientName');
+  const patLast = inPatLast ? inPatLast.value.trim() : '';
+  const pat = inPat ? inPat.value.trim() : '';
   const cName = document.getElementById('inputSettingContactName').value.trim();
   const cPhone = document.getElementById('inputSettingContactPhone').value.trim();
 
+  if (patLast) localStorage.setItem('anti_cfd_patient_lastname', patLast);
   if (pat) localStorage.setItem('anti_cfd_patient_name', pat);
   if (cName) localStorage.setItem('anti_cfd_contact_name', cName);
   if (cPhone) localStorage.setItem('anti_cfd_contact_phone', cPhone);
@@ -202,6 +229,25 @@ function saveSettingsFromModal() {
   updateContactDisplayElements();
   closeSettingsModal();
   alert('Paramètres enregistrés avec succès !');
+}
+
+// =============================================================================
+// PERSISTANCE DU STOCKAGE (navigator.storage.persist)
+// =============================================================================
+async function initStoragePersistence() {
+  if (navigator.storage && navigator.storage.persist) {
+    try {
+      const isPersisted = await navigator.storage.persisted();
+      if (!isPersisted) {
+        const granted = await navigator.storage.persist();
+        console.log(`[Storage] Persist request granted: ${granted}`);
+      } else {
+        console.log(`[Storage] Storage is already persisted.`);
+      }
+    } catch (e) {
+      console.warn('[Storage] Error requesting persistence:', e);
+    }
+  }
 }
 
 // =============================================================================
@@ -317,6 +363,14 @@ function switchView(viewId) {
   if (viewId === 'journal') {
     loadJournalEntries();
   }
+
+  // Watchdog d'inactivité de 45s pendant les tâches exécutives d'aura
+  if (['calc-task', 'quizz-task', 'stroop-task', 'swap-task'].includes(viewId)) {
+    startAuraWatchdog();
+  } else {
+    stopAuraWatchdog();
+  }
+
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -341,6 +395,7 @@ function restartWitnessFilming() {
 }
 
 function finishCognitiveTask() {
+  stopAuraWatchdog();
   triggerHaptic([60, 40, 60]);
   saveJournalEvent({
     date: new Date().toISOString(),
@@ -349,6 +404,79 @@ function finishCognitiveTask() {
   });
   alert("👏 Excellent ! Vous avez réengagé votre réseau exécutif et repris les commandes.");
   switchView('landing');
+}
+
+// =============================================================================
+// WATCHDOG D'INACTIVITÉ (45s) EN PHASE D'AURA & TÂCHES COGNITIVES
+// =============================================================================
+let auraWatchdogTimer = null;
+const WATCHDOG_TIMEOUT_MS = 45000;
+let watchdogListenersAttached = false;
+
+function resetAuraWatchdog() {
+  if (auraWatchdogTimer) {
+    clearTimeout(auraWatchdogTimer);
+    auraWatchdogTimer = null;
+  }
+  const currentView = document.querySelector('.view-section.active');
+  const isAuraTask = currentView && ['view-calc-task', 'view-quizz-task', 'view-stroop-task', 'view-swap-task'].includes(currentView.id);
+  if (!isAuraTask) return;
+
+  auraWatchdogTimer = setTimeout(triggerAuraWatchdogAlert, WATCHDOG_TIMEOUT_MS);
+}
+
+function startAuraWatchdog() {
+  attachWatchdogActivityListeners();
+  resetAuraWatchdog();
+}
+
+function stopAuraWatchdog() {
+  if (auraWatchdogTimer) {
+    clearTimeout(auraWatchdogTimer);
+    auraWatchdogTimer = null;
+  }
+  const modal = document.getElementById('auraWatchdogModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function attachWatchdogActivityListeners() {
+  if (watchdogListenersAttached) return;
+  watchdogListenersAttached = true;
+  ['touchstart', 'mousedown', 'keydown', 'input'].forEach(evt => {
+    window.addEventListener(evt, () => {
+      const modal = document.getElementById('auraWatchdogModal');
+      if (modal && modal.classList.contains('active')) return;
+      resetAuraWatchdog();
+    }, { passive: true });
+  });
+}
+
+function triggerAuraWatchdogAlert() {
+  triggerHaptic([200, 100, 200, 100, 400]);
+  const modal = document.getElementById('auraWatchdogModal');
+  if (modal) {
+    const contact = getResourceContact();
+    const btnCall = document.getElementById('btnWatchdogCallContact');
+    if (btnCall) {
+      btnCall.href = `tel:${contact.phone.replace(/\s+/g, '')}`;
+    }
+    const lblContact = document.getElementById('labelWatchdogContact');
+    if (lblContact) {
+      lblContact.innerText = `Appeler ${contact.name} (${contact.phone})`;
+    }
+    modal.classList.add('active');
+  }
+}
+
+function dismissAuraWatchdog() {
+  const modal = document.getElementById('auraWatchdogModal');
+  if (modal) modal.classList.remove('active');
+  resetAuraWatchdog();
+}
+
+function switchFromWatchdogToWitness() {
+  stopAuraWatchdog();
+  startWitnessWizard();
 }
 
 // =============================================================================
@@ -432,6 +560,7 @@ function lockAppAccess() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initAccessGate();
+  initStoragePersistence();
   initIndexedDB();
   updateContactDisplayElements();
 
@@ -445,9 +574,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Prise en charge des raccourcis PWA (App Shortcuts)
   const urlParams = new URLSearchParams(window.location.search);
   const requestedView = urlParams.get('view');
-  if (requestedView) switchView(requestedView);
+  const requestedAction = urlParams.get('action');
+
+  if (requestedView === 'journal') {
+    switchView('journal');
+    if (requestedAction === 'add') {
+      setTimeout(() => openAddCfdModal(), 250);
+    }
+  } else if (requestedView === 'aura') {
+    openAuraHub();
+  } else if (requestedView === 'temoin') {
+    startWitnessWizard();
+  } else if (requestedView) {
+    switchView(requestedView);
+  }
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(err => console.warn(err));
@@ -1434,37 +1577,197 @@ function getAllJournalEvents() {
   });
 }
 
-async function generateJournalReportText() {
+// =============================================================================
+// 12. PÉRIODE & SYNTHÈSE CLINIQUE EXPORTABLE (A4 & TEXTE)
+// =============================================================================
+let currentExportPeriod = '30d';
+let currentExportMonth = '';
+
+function setExportPeriod(periodKey) {
+  currentExportPeriod = periodKey;
+  document.querySelectorAll('.btn-period-pill').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`btnPeriod${periodKey.charAt(0).toUpperCase() + periodKey.slice(1)}`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  const monthContainer = document.getElementById('exportMonthSelectorContainer');
+  if (periodKey === 'month') {
+    if (monthContainer) monthContainer.style.display = 'block';
+    if (!currentExportMonth) {
+      const now = new Date();
+      currentExportMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const monthInput = document.getElementById('exportMonthInput');
+      if (monthInput) monthInput.value = currentExportMonth;
+    }
+  } else {
+    if (monthContainer) monthContainer.style.display = 'none';
+  }
+  updateExportModalPreview();
+}
+
+function onExportMonthChanged() {
+  const monthInput = document.getElementById('exportMonthInput');
+  if (monthInput && monthInput.value) {
+    currentExportMonth = monthInput.value;
+    updateExportModalPreview();
+  }
+}
+
+function formatDDMMYY(d) {
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = String(d.getFullYear()).slice(-2);
+  return `${day}${month}${year}`;
+}
+
+function formatFrenchDate(d) {
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function computePeriodBounds(periodKey, allEvents) {
+  const now = new Date();
+  let startDate = new Date();
+  let endDate = new Date(now);
+
+  if (periodKey === '7d') {
+    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+  } else if (periodKey === '30d') {
+    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+  } else if (periodKey === 'month') {
+    const parts = (currentExportMonth || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`).split('-');
+    const year = parseInt(parts[0], 10);
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    startDate = new Date(year, monthIndex, 1, 0, 0, 0, 0);
+    endDate = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
+  } else if (periodKey === 'all') {
+    if (allEvents && allEvents.length > 0) {
+      const timestamps = allEvents.map(e => new Date(e.date).getTime()).filter(t => !isNaN(t));
+      if (timestamps.length > 0) {
+        startDate = new Date(Math.min(...timestamps));
+        startDate.setHours(0, 0, 0, 0);
+      } else {
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+    } else {
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+    endDate.setHours(23, 59, 59, 999);
+  }
+
+  const startDDMMYY = formatDDMMYY(startDate);
+  const endDDMMYY = formatDDMMYY(endDate);
+  const label = `Du ${formatFrenchDate(startDate)} au ${formatFrenchDate(endDate)}`;
+
+  return { startDate, endDate, startDDMMYY, endDDMMYY, label };
+}
+
+function calculateClinicalMetrics(events, startDate, endDate) {
+  const startTime = startDate.getTime();
+  const endTime = endDate.getTime();
+
+  const periodEvents = events.filter(e => {
+    const t = new Date(e.date).getTime();
+    return t >= startTime && t <= endTime;
+  });
+
+  const cfdEpisodes = periodEvents.filter(e => e.isCfdEpisode || e.isStopped !== undefined);
+  const stoppedEpisodes = periodEvents.filter(e => e.isStopped === true || (e.type && (e.type.includes('stoppée') || e.type.includes('interrompue'))));
+  const occurredEpisodes = periodEvents.filter(e => e.isStopped === false || (e.type && e.type.includes('survenue')));
+  const videosCount = periodEvents.filter(e => Boolean(e.videoId)).length;
+
+  const stoppedRate = cfdEpisodes.length > 0 ? Math.round((stoppedEpisodes.length / cfdEpisodes.length) * 100) : (cfdEpisodes.length === 0 ? 100 : 0);
+
+  // Calcul des jours sans crise sur la période
+  const totalDays = Math.max(1, Math.round((endTime - startTime) / (24 * 60 * 60 * 1000)));
+  const crisisDaysSet = new Set();
+  occurredEpisodes.forEach(e => {
+    const d = new Date(e.date);
+    const dayKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    crisisDaysSet.add(dayKey);
+  });
+  const crisisDaysCount = crisisDaysSet.size;
+  const crisisFreeDays = Math.max(0, totalDays - crisisDaysCount);
+  const crisisFreeRate = Math.round((crisisFreeDays / totalDays) * 100);
+
+  return {
+    periodEvents,
+    cfdEpisodes,
+    stoppedEpisodes,
+    occurredEpisodes,
+    videosCount,
+    stoppedRate,
+    totalDays,
+    crisisFreeDays,
+    crisisFreeRate
+  };
+}
+
+function getClinicalDocumentFileName(startDDMMYY, endDDMMYY) {
+  const rawLast = getPatientLastName().trim() || 'Dufour';
+  const rawFirst = getPatientFirstName().trim() || 'Christophe';
+  const cleanLast = rawLast.replace(/[\s/\\?%*:|"<>]+/g, '_');
+  const cleanFirst = rawFirst.replace(/[\s/\\?%*:|"<>]+/g, '_');
+  return `${cleanLast}_${cleanFirst}_${startDDMMYY} au ${endDDMMYY}`;
+}
+
+async function updateExportModalPreview() {
+  const allEvents = await getAllJournalEvents();
+  const bounds = computePeriodBounds(currentExportPeriod, allEvents);
+  const metrics = calculateClinicalMetrics(allEvents, bounds.startDate, bounds.endDate);
+
+  const labelEl = document.getElementById('exportPeriodLabel');
+  if (labelEl) labelEl.innerText = `Période sélectionnée : ${bounds.label}`;
+
+  const stoppedRateEl = document.getElementById('exportMetricStoppedRate');
+  if (stoppedRateEl) stoppedRateEl.innerText = `${metrics.stoppedRate}%`;
+
+  const crisisFreeDaysEl = document.getElementById('exportMetricCrisisFreeDays');
+  if (crisisFreeDaysEl) crisisFreeDaysEl.innerText = `${metrics.crisisFreeDays} / ${metrics.totalDays} j`;
+
+  const totalEpisodesEl = document.getElementById('exportMetricTotalEpisodes');
+  if (totalEpisodesEl) totalEpisodesEl.innerText = metrics.cfdEpisodes.length;
+
+  const docTitleEl = document.getElementById('exportDocTitlePreview');
+  const docTitle = getClinicalDocumentFileName(bounds.startDDMMYY, bounds.endDDMMYY);
+  if (docTitleEl) docTitleEl.innerText = `${docTitle}.pdf`;
+
+  const text = await generateJournalReportText(bounds.startDate, bounds.endDate);
+  const pre = document.getElementById('exportReportPreview');
+  if (pre) pre.innerText = text;
+}
+
+async function generateJournalReportText(optStartDate, optEndDate) {
   const events = await getAllJournalEvents();
-  const patientName = getPatientName();
+  const bounds = (optStartDate && optEndDate)
+    ? { startDate: optStartDate, endDate: optEndDate, label: `Du ${formatFrenchDate(optStartDate)} au ${formatFrenchDate(optEndDate)}` }
+    : computePeriodBounds(currentExportPeriod, events);
+
+  const metrics = calculateClinicalMetrics(events, bounds.startDate, bounds.endDate);
+  const patientFullName = getPatientFullName();
   const now = new Date();
   const reportDateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  // Statistiques
-  const cfdEpisodes = events.filter(e => e.isCfdEpisode || e.isStopped !== undefined);
-  const stoppedEpisodes = events.filter(e => e.isStopped === true || (e.type && (e.type.includes('stoppée') || e.type.includes('interrompue'))));
-  const occurredEpisodes = events.filter(e => e.isStopped === false || (e.type && e.type.includes('survenue')));
-  const videosCount = events.filter(e => e.videoId).length;
-  const stoppedRate = cfdEpisodes.length > 0 ? Math.round((stoppedEpisodes.length / cfdEpisodes.length) * 100) : 0;
-
-  // Tri antichronologique
-  const sorted = [...events].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sorted = [...metrics.periodEvents].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   let text = `=========================================\n`;
-  text += `RAPPORT DE SUIVI CLINIQUE • PROTOCOLE CFD\n`;
+  text += `RELEVÉ CLINIQUE DE SUIVI • PROTOCOLE ANTI-CFD\n`;
   text += `Dr Christophe Dufour • Médecine & Neurosciences\n`;
   text += `=========================================\n\n`;
-  text += `Patient : ${patientName}\n`;
-  text += `Date du rapport : ${reportDateStr}\n\n`;
+  text += `Patient : ${patientFullName}\n`;
+  text += `Période analysée : ${bounds.label}\n`;
+  text += `Date d'édition : ${reportDateStr}\n\n`;
 
   text += `-----------------------------------------\n`;
-  text += `SYNTHÈSE STATISTIQUE\n`;
+  text += `SYNTHÈSE STATISTIQUE SUR LA PÉRIODE\n`;
   text += `-----------------------------------------\n`;
-  text += `• Total des événements enregistrés : ${events.length}\n`;
-  text += `• Épisodes CFD consignés : ${cfdEpisodes.length}\n`;
-  text += `  - Crises stoppées / évitées : ${stoppedEpisodes.length} (${stoppedRate}%)\n`;
-  text += `  - Crises survenues : ${occurredEpisodes.length}\n`;
-  text += `• Vidéos enregistrées sur l'appareil : ${videosCount}\n`;
+  text += `• Épisodes CFD consignés : ${metrics.cfdEpisodes.length}\n`;
+  text += `  - Crises stoppées / évitées : ${metrics.stoppedEpisodes.length} (${metrics.stoppedRate}%)\n`;
+  text += `  - Crises survenues : ${metrics.occurredEpisodes.length}\n`;
+  text += `• Jours sans crise sur la période : ${metrics.crisisFreeDays} / ${metrics.totalDays} jours (${metrics.crisisFreeRate}%)\n`;
+  text += `• Vidéos enregistrées sur l'appareil : ${metrics.videosCount}\n`;
   text += `  (Nota : les vidéos sont conservées sur le téléphone du patient pour analyse en direct en consultation)\n\n`;
 
   text += `-----------------------------------------\n`;
@@ -1472,13 +1775,18 @@ async function generateJournalReportText() {
   text += `-----------------------------------------\n`;
 
   if (sorted.length === 0) {
-    text += `Aucun événement consigné pour l'instant.\n`;
+    text += `Aucun événement consigné sur cette période.\n`;
   } else {
     sorted.forEach((ev, idx) => {
       const d = new Date(ev.date);
       const dStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      text += `[${idx + 1}] ${dStr}\n`;
-      text += `    • Type : ${ev.type || 'Événement'}\n`;
+      let statusStr = 'Événement';
+      if (ev.isStopped === true || (ev.type && (ev.type.includes('stoppée') || ev.type.includes('interrompue')))) {
+        statusStr = '✅ CFD Stoppée / Évitée';
+      } else if (ev.isStopped === false || (ev.type && ev.type.includes('survenue'))) {
+        statusStr = '⚠️ CFD Survenue (Non stoppée)';
+      }
+      text += `[${idx + 1}] ${dStr} — ${statusStr}\n`;
       if (ev.tags && ev.tags.length > 0) {
         text += `    • Déclencheurs : ${ev.tags.join(', ')}\n`;
       }
@@ -1498,9 +1806,7 @@ async function generateJournalReportText() {
 }
 
 async function openExportModal() {
-  const reportText = await generateJournalReportText();
-  const pre = document.getElementById('exportReportPreview');
-  if (pre) pre.innerText = reportText;
+  await updateExportModalPreview();
   const modal = document.getElementById('modalExportJournal');
   if (modal) modal.classList.add('active');
 }
@@ -1510,9 +1816,152 @@ function closeExportModal() {
   if (modal) modal.classList.remove('active');
 }
 
+async function printClinicalReportA4() {
+  const allEvents = await getAllJournalEvents();
+  const bounds = computePeriodBounds(currentExportPeriod, allEvents);
+  const metrics = calculateClinicalMetrics(allEvents, bounds.startDate, bounds.endDate);
+
+  const docTitle = getClinicalDocumentFileName(bounds.startDDMMYY, bounds.endDDMMYY);
+  const prevTitle = document.title;
+  document.title = docTitle;
+
+  const container = document.getElementById('printClinicalReportContainer');
+  if (!container) return;
+
+  const patientFullName = getPatientFullName();
+  const now = new Date();
+  const printDateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  // Tri antichronologique ou chronologique : chronologique pour lecture clinique
+  const sortedEpisodes = [...metrics.periodEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  let rowsHtml = '';
+  if (sortedEpisodes.length === 0) {
+    rowsHtml = `<tr><td colspan="5" style="text-align: center; padding: 18px; color: #64748B;">Aucun événement consigné sur cette période (${bounds.label}).</td></tr>`;
+  } else {
+    sortedEpisodes.forEach((ev) => {
+      const d = new Date(ev.date);
+      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+      let outcomeLabel = 'Événement';
+      let outcomeClass = '';
+      if (ev.isStopped === true || (ev.type && (ev.type.includes('stoppée') || ev.type.includes('interrompue')))) {
+        outcomeLabel = '✅ Bloquée / Stoppée';
+        outcomeClass = 'print-badge-stopped';
+      } else if (ev.isStopped === false || (ev.type && ev.type.includes('survenue'))) {
+        outcomeLabel = '⚠️ Survenue (Non stoppée)';
+        outcomeClass = 'print-badge-occurred';
+      } else if (ev.videoId) {
+        outcomeLabel = '📹 Vidéo Seule';
+      }
+
+      const triggers = (ev.tags && ev.tags.length > 0) ? ev.tags.join(', ') : '—';
+      const videoStatus = ev.videoId ? '📹 Oui (sur smartphone)' : 'Non';
+      const notes = ev.notes ? ev.notes : '—';
+
+      rowsHtml += `
+        <tr>
+          <td style="white-space: nowrap; font-weight: 600;">${dateStr}</td>
+          <td class="${outcomeClass}" style="font-weight: 700;">${outcomeLabel}</td>
+          <td>${triggers}</td>
+          <td style="white-space: nowrap;">${videoStatus}</td>
+          <td>${notes}</td>
+        </tr>
+      `;
+    });
+  }
+
+  container.innerHTML = `
+    <div class="print-header">
+      <div>
+        <h1 class="print-title">Relevé Clinique • Protocole Anti-CFD</h1>
+        <p class="print-subtitle">Neurosciences Cliniques & Réengagement Exécutif • Dr Christophe Dufour</p>
+      </div>
+      <div style="text-align: right; font-size: 8.5pt; color: #475569;">
+        Document confidentiel médical<br>Édité le ${printDateStr}
+      </div>
+    </div>
+
+    <div class="print-meta-grid">
+      <div class="print-meta-item">
+        <strong>Patient :</strong> ${patientFullName}
+      </div>
+      <div class="print-meta-item">
+        <strong>Période analysée :</strong> ${bounds.label}
+      </div>
+    </div>
+
+    <div class="print-gauges-grid">
+      <div class="print-gauge-card highlight">
+        <div class="print-gauge-value">${metrics.stoppedRate}%</div>
+        <div class="print-gauge-label">Crises stoppées / évitées</div>
+        <div class="print-bar-container">
+          <div class="print-bar-fill" style="width: ${metrics.stoppedRate}%;"></div>
+        </div>
+        <div style="font-size: 8pt; color: #475569; margin-top: 4px;">
+          ${metrics.stoppedEpisodes.length} bloquée(s) sur ${metrics.cfdEpisodes.length} épisode(s)
+        </div>
+      </div>
+
+      <div class="print-gauge-card">
+        <div class="print-gauge-value">${metrics.crisisFreeDays} / ${metrics.totalDays}</div>
+        <div class="print-gauge-label">Jours sans crise (${metrics.crisisFreeRate}%)</div>
+        <div class="print-bar-container">
+          <div class="print-bar-fill" style="width: ${metrics.crisisFreeRate}%; background: #0284C7;"></div>
+        </div>
+        <div style="font-size: 8pt; color: #475569; margin-top: 4px;">
+          Sur l'ensemble de la période
+        </div>
+      </div>
+
+      <div class="print-gauge-card">
+        <div class="print-gauge-value">${metrics.videosCount}</div>
+        <div class="print-gauge-label">Vidéos documentées</div>
+        <div style="font-size: 8pt; color: #64748B; margin-top: 8px;">
+          Conservées sur le smartphone du patient pour consultation
+        </div>
+      </div>
+    </div>
+
+    <h2 style="font-size: 11pt; text-transform: uppercase; margin: 16px 0 6px 0; color: #0F172A; border-bottom: 1px solid #CBD5E1; padding-bottom: 4px;">
+      Chronologie détaillée des épisodes
+    </h2>
+
+    <table class="print-table">
+      <thead>
+        <tr>
+          <th style="width: 18%;">Date & Heure</th>
+          <th style="width: 22%;">Issue clinique</th>
+          <th style="width: 20%;">Déclencheurs</th>
+          <th style="width: 15%;">Vidéo</th>
+          <th style="width: 25%;">Notes & Observations</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+
+    <div class="print-footer">
+      <span>Application Anti-CFD • Réengagement des Réseaux Attentionnels et Exécutifs</span>
+      <span>Titre du document : ${docTitle}.pdf</span>
+    </div>
+  `;
+
+  // Déclencher l'impression native du navigateur
+  window.print();
+
+  // Restaurer le titre d'origine
+  setTimeout(() => {
+    document.title = prevTitle;
+  }, 2500);
+}
+
 async function shareJournalReport() {
-  const reportText = await generateJournalReportText();
-  const title = `Journal clinique CFD - ${getPatientName()}`;
+  const allEvents = await getAllJournalEvents();
+  const bounds = computePeriodBounds(currentExportPeriod, allEvents);
+  const reportText = await generateJournalReportText(bounds.startDate, bounds.endDate);
+  const title = `Relevé Clinique CFD - ${getPatientFullName()}`;
   if (navigator.share) {
     try {
       await navigator.share({
@@ -1529,54 +1978,42 @@ async function shareJournalReport() {
 }
 
 async function copyJournalReportToClipboard() {
-  const reportText = await generateJournalReportText();
+  const allEvents = await getAllJournalEvents();
+  const bounds = computePeriodBounds(currentExportPeriod, allEvents);
+  const reportText = await generateJournalReportText(bounds.startDate, bounds.endDate);
   try {
     await navigator.clipboard.writeText(reportText);
-    alert("✅ Rapport copié dans le presse-papier ! Vous pouvez le coller dans un email ou un message pour votre médecin.");
+    alert("✅ Rapport copié dans le presse-papier !");
   } catch (e) {
     prompt("Copiez le texte ci-dessous :", reportText);
   }
 }
 
 async function downloadJournalReportTxt() {
-  const reportText = await generateJournalReportText();
+  const allEvents = await getAllJournalEvents();
+  const bounds = computePeriodBounds(currentExportPeriod, allEvents);
+  const reportText = await generateJournalReportText(bounds.startDate, bounds.endDate);
+  const docTitle = getClinicalDocumentFileName(bounds.startDDMMYY, bounds.endDDMMYY);
   const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  const dStr = new Date().toISOString().slice(0, 10);
-  a.download = `rapport_cfd_${getPatientName()}_${dStr}.txt`;
+  a.download = `${docTitle}.txt`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 }
 
-async function shareVideoById(videoId) {
-  try {
-    const rec = await getVideoById(videoId);
-    if (!rec || !rec.blob) {
-      alert("Vidéo introuvable.");
-      return;
-    }
-    const ext = rec.blob.type && rec.blob.type.includes('mp4') ? 'mp4' : 'webm';
-    const fileName = `video_cfd_${getPatientName()}_${videoId}.${ext}`;
-    const file = new File([rec.blob], fileName, { type: rec.blob.type || 'video/webm' });
+// =============================================================================
+// 13. GESTION DU JOURNAL & FILTRES RAPIDES
+// =============================================================================
+let currentJournalFilter = 'all';
 
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        title: `Vidéo Clinique CFD - ${getPatientName()}`,
-        text: `Enregistrement vidéo d'un épisode CFD de ${getPatientName()} pour consultation médicale.`,
-        files: [file]
-      });
-    } else {
-      downloadVideoById(videoId);
-      alert("📥 La vidéo a été téléchargée dans vos fichiers. Vous pouvez la joindre à un message ou un email pour votre médecin.");
-    }
-  } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.warn('Erreur partage vidéo:', err);
-      downloadVideoById(videoId);
-    }
-  }
+function setJournalFilter(filterKey) {
+  currentJournalFilter = filterKey;
+  document.querySelectorAll('.btn-filter-pill').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`btnFilter${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  loadJournalEntries();
 }
 
 async function loadJournalEntries() {
@@ -1586,19 +2023,30 @@ async function loadJournalEntries() {
   const events = await getAllJournalEvents();
   events.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // Mise à jour des statistiques
+  // Statistiques globales
   const totalEpisodesEl = document.getElementById('statTotalEpisodes');
   const stoppedPercentEl = document.getElementById('statStoppedPercent');
   const totalVideosEl = document.getElementById('statTotalVideos');
 
   const cfdEpisodes = events.filter(e => e.isCfdEpisode || e.isStopped !== undefined);
   const stoppedEpisodes = events.filter(e => e.isStopped === true || (e.type && (e.type.includes('stoppée') || e.type.includes('interrompue'))));
-  const videosCount = events.filter(e => e.videoId).length;
+  const occurredEpisodes = events.filter(e => e.isStopped === false || (e.type && e.type.includes('survenue')));
+  const videosEpisodes = events.filter(e => Boolean(e.videoId));
   const stoppedRate = cfdEpisodes.length > 0 ? Math.round((stoppedEpisodes.length / cfdEpisodes.length) * 100) : 0;
 
   if (totalEpisodesEl) totalEpisodesEl.innerText = cfdEpisodes.length;
   if (stoppedPercentEl) stoppedPercentEl.innerText = `${stoppedRate}%`;
-  if (totalVideosEl) totalVideosEl.innerText = videosCount;
+  if (totalVideosEl) totalVideosEl.innerText = videosEpisodes.length;
+
+  // Mise à jour des compteurs des filtres
+  const cAll = document.getElementById('countFilterAll');
+  const cStopped = document.getElementById('countFilterStopped');
+  const cOccurred = document.getElementById('countFilterOccurred');
+  const cVideo = document.getElementById('countFilterVideo');
+  if (cAll) cAll.innerText = events.length;
+  if (cStopped) cStopped.innerText = stoppedEpisodes.length;
+  if (cOccurred) cOccurred.innerText = occurredEpisodes.length;
+  if (cVideo) cVideo.innerText = videosEpisodes.length;
 
   if (events.length === 0) {
     container.innerHTML = `
@@ -1611,8 +2059,27 @@ async function loadJournalEntries() {
     return;
   }
 
+  // Filtrage selon la sélection active
+  let displayedEvents = events;
+  if (currentJournalFilter === 'stopped') {
+    displayedEvents = stoppedEpisodes;
+  } else if (currentJournalFilter === 'occurred') {
+    displayedEvents = occurredEpisodes;
+  } else if (currentJournalFilter === 'video') {
+    displayedEvents = videosEpisodes;
+  }
+
+  if (displayedEvents.length === 0) {
+    container.innerHTML = `
+      <div class="card" style="text-align: center; color: var(--text-muted); padding: 24px 16px; background-color: var(--bg-card-subtle);">
+        <p style="margin: 0; font-weight: 600;">Aucun événement dans cette catégorie.</p>
+      </div>
+    `;
+    return;
+  }
+
   let html = '';
-  for (const ev of events) {
+  for (const ev of displayedEvents) {
     const d = new Date(ev.date);
     const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 

@@ -42,6 +42,13 @@
       "description": "Consignes de sécurité et caméra d'évaluation clinique",
       "url": "./index.html?view=temoin",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "➕ Noter une Crise CFD",
+      "short_name": "Noter Crise",
+      "description": "Consigner un épisode CFD dans le journal de bord",
+      "url": "./index.html?view=journal&action=add",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
