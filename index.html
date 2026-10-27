@@ -97,17 +97,25 @@
 
       </div>
 
-      <!-- Liens secondaires épurés -->
-      <div style="margin-top: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-        <button class="btn-secondary" style="font-size: 13px; padding: 12px 8px; text-align: center;" onclick="switchView('neuro')">
-          📖 Comprendre & Hygiène
+      <!-- Liens secondaires responsive & hiérarchisés -->
+      <div class="landing-secondary-container">
+        <!-- Bouton Journal & Vidéos : toute la largeur, plus étroit que les 2 CTA -->
+        <button class="btn-secondary btn-landing-journal" onclick="switchView('journal')">
+          <span style="font-size: 19px;">📓</span>
+          <span>Journal de bord & Vidéos</span>
         </button>
-        <button class="btn-secondary" style="font-size: 13px; padding: 12px 8px; text-align: center;" onclick="switchView('journal')">
-          📓 Journal & Vidéos
-        </button>
-        <button class="btn-secondary" style="font-size: 13px; padding: 12px 8px; text-align: center;" onclick="openSettingsModal()">
-          📞 Contact d'Urgence
-        </button>
+
+        <!-- Grille inférieure : Comprendre et Urgence placés en dessous -->
+        <div class="landing-sub-grid">
+          <button class="btn-secondary btn-landing-sub" onclick="switchView('neuro')">
+            <span>📖</span>
+            <span>Comprendre & Hygiène</span>
+          </button>
+          <button class="btn-secondary btn-landing-sub" onclick="openSettingsModal()">
+            <span>📞</span>
+            <span>Contact d'Urgence</span>
+          </button>
+        </div>
       </div>
     </section>
 
