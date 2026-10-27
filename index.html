@@ -16,29 +16,31 @@
 <body>
 
   <!-- ========================================================================
-       ÉCRAN DE VERROUILLAGE / CODE D'ACCÈS CLINIQUE (2527)
+       ÉCRAN DE VERROUILLAGE OPAQUE / CODE D'ACCÈS CLINIQUE PRATICIEN
        ======================================================================== -->
   <div id="gateLockOverlay" class="gate-lock-overlay">
     <div class="gate-lock-card">
+      <div class="gate-lock-icon">🛡️</div>
       <div class="gate-lock-badge">Protocole Clinique CFD</div>
-      <h1 class="gate-lock-title">Accès Restreint</h1>
+      <h1 class="gate-lock-title">Code d'accès requis</h1>
       <p class="gate-lock-subtitle">
-        Cette application médicale est réservée aux participants de l'évaluation clinique et patients suivis.
+        Cette application médicale est réservée aux patients suivis dans le cadre du protocole clinique. Veuillez entrer le code d'accès à 4 chiffres fourni par votre médecin.
       </p>
 
       <div class="gate-pin-container">
-        <label for="gatePinInput" class="gate-pin-label">Entrez votre code d'accès à 4 chiffres :</label>
+        <label for="gatePinInput" class="gate-pin-label">Code d'accès praticien (4 chiffres) :</label>
         <input type="password" id="gatePinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" autocomplete="off" class="gate-pin-input">
         <div id="gateErrorMessage" class="gate-error-message hidden">
           ⚠️ Code incorrect. Veuillez vous rapprocher de votre praticien.
         </div>
         <button id="btnGateUnlock" class="btn-primary gate-unlock-btn" onclick="submitGateCode()">
-          Déverrouiller l'accès
+          Déverrouiller l'accès ➔
         </button>
       </div>
 
       <div class="gate-lock-footer">
-        © Dr. Christophe Dufour • Médecine & Neurosciences
+        Dispositif d'évaluation et de réengagement exécutif<br>
+        Dr Christophe Dufour • Médecine & Neurosciences
       </div>
     </div>
   </div>
@@ -537,11 +539,11 @@
 
       <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Verrouillage praticien :</div>
-          <div style="font-size: 11px; color: var(--text-muted);">Code actif : 2527</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Sécurité de l'application :</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Protégée par code praticien</div>
         </div>
         <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="lockAppAccess()">
-          🔒 Verrouiller
+          🔒 Verrouiller l'accès
         </button>
       </div>
     </div>

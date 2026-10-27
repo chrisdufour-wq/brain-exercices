@@ -995,18 +995,23 @@ body {
 }
 
 /* =============================================================================
-   Écran de Verrouillage / Code Clinique Praticien (2527)
+   Écran de Verrouillage Opaque / Code Clinique Praticien
    ============================================================================= */
 .gate-lock-overlay {
   position: fixed;
-  inset: 0;
-  z-index: 100000;
-  background-color: var(--bg-primary);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999999;
+  background-color: #0B1120 !important; /* 100% Opaque sombre absolu, zéro transparence */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px;
+  box-sizing: border-box;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .gate-lock-overlay.hidden {
@@ -1015,82 +1020,98 @@ body {
 
 .gate-lock-card {
   width: 100%;
-  max-width: 400px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 32px 24px;
+  max-width: 420px;
+  background-color: #1E293B !important; /* Carte 100% opaque */
+  border: 1px solid #334155;
+  border-radius: 20px;
+  padding: 36px 24px;
   text-align: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+  color: #F8FAFC;
+  box-sizing: border-box;
+}
+
+.gate-lock-icon {
+  font-size: 38px;
+  line-height: 1;
+  margin-bottom: 12px;
 }
 
 .gate-lock-badge {
   display: inline-block;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 999px;
-  background: var(--bg-tertiary);
-  color: var(--color-primary);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38BDF8;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 16px;
-  border: 1px solid var(--border-color);
+  margin-bottom: 14px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
 .gate-lock-title {
   font-size: 24px;
   font-weight: 800;
-  margin: 0 0 8px 0;
-  color: var(--text-primary);
+  margin: 0 0 10px 0;
+  color: #FFFFFF;
   letter-spacing: -0.02em;
 }
 
 .gate-lock-subtitle {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text-secondary);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #94A3B8;
   margin: 0 0 24px 0;
 }
 
 .gate-pin-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
+  width: 100%;
 }
 
 .gate-pin-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #CBD5E1;
 }
 
 .gate-pin-input {
-  width: 190px;
-  height: 56px;
-  font-size: 28px;
-  letter-spacing: 12px;
+  width: 200px;
+  height: 58px;
+  font-size: 32px;
+  letter-spacing: 14px;
   text-align: center;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  border-radius: 12px;
+  border: 2px solid #475569;
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
   font-family: var(--font-mono);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+  -webkit-text-security: disc;
 }
 
 .gate-pin-input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(43, 92, 143, 0.15);
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
 }
 
 .gate-error-message {
-  font-size: 12px;
-  color: var(--color-danger);
+  font-size: 13px;
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
   font-weight: 600;
-  margin-top: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .gate-error-message.hidden {
@@ -1099,13 +1120,29 @@ body {
 
 .gate-unlock-btn {
   width: 100%;
-  margin-top: 8px;
-  padding: 14px;
+  margin-top: 6px;
+  padding: 15px;
   font-size: 15px;
+  font-weight: 700;
+  background: #2563EB;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.gate-unlock-btn:hover {
+  background: #1D4ED8;
+}
+
+.gate-unlock-btn:active {
+  transform: scale(0.98);
 }
 
 .gate-lock-footer {
   margin-top: 24px;
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: 11.5px;
+  color: #64748B;
+  line-height: 1.5;
 }

@@ -398,12 +398,18 @@ function submitGateCode() {
     localStorage.setItem('cfd_app_unlocked', 'true');
     if (errorMsg) errorMsg.classList.add('hidden');
     overlay.classList.add('hidden');
-    playSound('correct');
+    try {
+      playTone(880, 0.12);
+      triggerHaptic([40, 30, 40]);
+    } catch (e) {}
   } else {
     if (errorMsg) errorMsg.classList.remove('hidden');
     pinInput.value = '';
     pinInput.focus();
-    playSound('wrong');
+    try {
+      playTone(220, 0.25, 'sawtooth');
+      triggerHaptic([80, 40, 80]);
+    } catch (e) {}
   }
 }
 
