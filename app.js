@@ -703,32 +703,31 @@ function openPillarModal(pillarType) {
   const title = document.getElementById('pillarModalTitle');
   const content = document.getElementById('pillarModalContent');
 
-  if (pillarType === 'sommeil') {
-    title.innerText = '🛏️ Sommeil de Qualité & TCC-I';
+  if (pillarType === 'hypotension') {
+    title.innerText = '💧 1. Lutter contre l\'Hypotension & Vertiges';
     content.innerHTML = `
       <div style="font-size: 14.5px; line-height: 1.6; color: var(--text-secondary);">
-        <p><strong>1. Le lit est réservé exclusivement au sommeil :</strong> Ne travaillez pas, ne regardez pas d'écran et ne ruminez pas au lit.</p>
-        <p><strong>2. Fuyez la lumière bleue 1h avant de dormir :</strong> Éteignez téléphones, tablettes et ordinateurs pour libérer la mélatonine naturelle.</p>
-        
-        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 16px; margin: 16px 0;">
-          <h4 style="color: var(--color-sn); margin-bottom: 6px;">⏱️ La Règle des 20 Minutes :</h4>
-          <p style="margin-bottom: 12px;">Si le sommeil ne vient pas après 20 minutes, <strong>levez-vous</strong>. Allez dans une pièce sombre, faites une activité calme et ne retournez au lit que lorsque la somnolence réapparaît.</p>
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-family: var(--font-mono); font-size: 26px; font-weight: 800; color: var(--color-sn);" id="sleepTimerDisplay">20:00</span>
-            <button class="btn-primary" id="btnToggleSleepTimer" style="width: auto; padding: 8px 16px;" onclick="toggleSleepTimer()">
-              ▶️ Lancer Minuteur
-            </button>
-          </div>
+        <p>Une chute de pression artérielle diminue l'oxygénation du cortex et désorganise immédiatement le réseau exécutif :</p>
+        <ul style="margin: 10px 0 16px 18px; line-height: 1.7;">
+          <li><strong>Boire 2 à 3 Litres d'eau / jour :</strong> Gardez une gourde toujours visible et buvez régulièrement pour maintenir la volémie circulante.</li>
+          <li><strong>Manger davantage salé :</strong> Salez généreusement vos plats, consommez des bouillons ou des eaux riches en sodium pour retenir l'eau dans les artères (sauf contre-indication médicale).</li>
+          <li><strong>Lever en 3 temps :</strong> Restez assis au bord du lit 1 minute avant de vous lever pour éviter le décrochage orthostatique.</li>
+        </ul>
+        <h4 style="color: var(--text-primary); margin-bottom: 6px;">Manœuvres Physiques de Contre-Pression (En cas de vertige) :</h4>
+        <div style="background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: 10px; padding: 12px; color: #92400E; font-size: 13.5px; line-height: 1.5;">
+          • <strong>Leg Crossing :</strong> Croisez les jambes fermement et contractez puissamment les cuisses et les fessiers.<br>
+          • <strong>Pompe des mollets :</strong> Montez 15 fois d'affilée sur la pointe des pieds.<br>
+          • <strong>Accroupissement :</strong> Accroupissez-vous immédiatement au sol si la tête tourne.
         </div>
       </div>
     `;
   } else if (pillarType === 'respiration') {
-    title.innerText = '🫁 Technique Respiratoire Apaisante';
+    title.innerText = '🫁 2. Diminuer votre Stress & Respiration';
     content.innerHTML = `
       <div style="font-size: 14.5px; line-height: 1.6; color: var(--text-secondary);">
         <p>Face au stress, <strong>ne cherchez pas à vous remplir d'air</strong> (risque d'hyperventilation). Relâchez le système nerveux en deux temps :</p>
         <div style="background-color: var(--color-sn-bg); border-radius: 12px; padding: 14px; margin: 14px 0; color: var(--text-primary);">
-          <strong>1. Bouche entrouverte :</strong> Laissez passivement l'air s'échapper à son rythme sans forcer. Sentez la décrispation thoracique.<br><br>
+          <strong>1. Bouche entrouverte :</strong> Laissez passivement l'air s'échapper à son rythme sans forcer. Sentez la cage thoracique descendre et se relâcher.<br><br>
           <strong>2. Par le nez (bouche fermée) :</strong> Petite inspiration douce et naturelle sans ouvrir la bouche.
         </div>
         <div class="respiration-container" style="padding: 16px 0;">
@@ -747,26 +746,74 @@ function openPillarModal(pillarType) {
         </div>
       </div>
     `;
-  } else if (pillarType === 'hypotension') {
-    title.innerText = '💧 Hypotension, Sel & Volémie Cérébrale';
+  } else if (pillarType === 'sommeil') {
+    title.innerText = '🛏️ 3. Bien Dormir • Hygiène du Sommeil';
     content.innerHTML = `
       <div style="font-size: 14.5px; line-height: 1.6; color: var(--text-secondary);">
-        <p>Une chute de pression artérielle diminue l'oxygénation du cortex et désorganise le réseau exécutif :</p>
-        <ul style="margin: 10px 0 16px 18px; line-height: 1.7;">
-          <li><strong>Boire 2 à 3 Litres d'eau / jour :</strong> Gardez une gourde toujours visible pour maintenir la volémie.</li>
-          <li><strong>Manger davantage salé :</strong> Salez vos plats, consommez des bouillons ou des eaux riches en sodium pour retenir l'eau dans les artères (sauf avis médical contraire).</li>
-          <li><strong>Lever en 3 temps :</strong> Restez assis au bord du lit 1 minute avant de vous lever.</li>
-        </ul>
-        <h4 style="color: var(--text-primary); margin-bottom: 6px;">Manœuvres Physiques de Contre-Pression (En cas de vertige) :</h4>
-        <div style="background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: 10px; padding: 12px; color: #92400E; font-size: 13.5px;">
-          • <strong>Leg Crossing :</strong> Croisez les jambes fermement et contractez puissamment les cuisses et les fessiers.<br>
-          • <strong>Pompe des mollets :</strong> Montez 15 fois sur la pointe des pieds.<br>
-          • <strong>Accroupissement :</strong> Accroupissez-vous immédiatement si la tête tourne.
+        <p>Un sommeil profond et régulier est le premier régénérateur du réseau exécutif frontal. Voici les 4 règles d'or :</p>
+        
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin: 12px 0;">
+          <h4 style="color: var(--color-sn); margin-bottom: 4px;">1. Le lit est réservé exclusivement au sommeil</h4>
+          <p style="font-size: 13.5px; margin: 0;">Ne travaillez pas, ne regardez pas d'écran, ne mangez pas et ne ruminez pas au lit. Votre cerveau doit associer le matelas au sommeil et à rien d'autre.</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin: 12px 0;">
+          <h4 style="color: var(--color-sn); margin-bottom: 4px;">2. La règle des 20 minutes (sans regarder l'heure)</h4>
+          <p style="font-size: 13.5px; margin: 0;">Si vous ne dormez pas après environ 20 minutes (à l'estimation, sans vérifier de montre), <strong>levez-vous</strong>. Allez dans une autre pièce calme et faiblement éclairée, lisez un livre papier ou écoutez une musique douce. Ne retournez au lit que lorsque vos yeux piquent et que la somnolence revient.</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin: 12px 0;">
+          <h4 style="color: var(--color-sn); margin-bottom: 4px;">3. Fuyez la lumière bleue 1h avant le coucher</h4>
+          <p style="font-size: 13.5px; margin: 0;">Éteignez téléphones, tablettes et ordinateurs au moins 60 minutes avant de dormir. La lumière bleue bloque chimiquement la sécrétion de mélatonine naturelle.</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin: 12px 0;">
+          <h4 style="color: var(--color-sn); margin-bottom: 4px;">4. Régularité stricte de l'heure du lever</h4>
+          <p style="font-size: 13.5px; margin: 0;">Levez-vous tous les jours à la même heure, y compris le week-end. C'est l'heure du lever matinal qui ancre et synchronise votre rythme circadien.</p>
+        </div>
+      </div>
+    `;
+  } else if (pillarType === 'cerveau') {
+    title.innerText = '🧠 4. Entraîner votre Cerveau au Quotidien';
+    content.innerHTML = `
+      <div style="font-size: 14.5px; line-height: 1.6; color: var(--text-secondary);">
+        <p style="margin-bottom: 12px;">
+          Le réseau exécutif cérébral (inhibition, mémoire de travail, flexibilité et planification) se muscle par des défis stimulants dans la vie réelle en <strong>conditions écologiques</strong> :
+        </p>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+          <h4 style="color: var(--color-cen); margin-bottom: 4px;">♟️ 1. Jeux de stratégie et de cartes</h4>
+          <p style="font-size: 13.5px; margin: 0;">Échecs, dames, jeux de société modernes de stratégie, tarot, belote ou bridge. Exige d'anticiper plusieurs coups à l'avance et d'inhiber les réactions impulsives.</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+          <h4 style="color: var(--color-cen); margin-bottom: 4px;">🍳 2. Recettes complexes & Pâtisserie de précision</h4>
+          <p style="font-size: 13.5px; margin: 0;">Cuisinez des plats élaborés ou de la pâtisserie nécessitant le respect strict des étapes, des pesées exactes et la synchronisation de plusieurs cuissons simultanées (attention partagée et séquençage temporel).</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+          <h4 style="color: var(--color-cen); margin-bottom: 4px;">🧭 3. Se retrouver en ville sans GPS ni plan</h4>
+          <p style="font-size: 13.5px; margin: 0;">Déplacez-vous dans un quartier, une ville ou un parc sans regarder votre smartphone ni carte. Mémorisez au préalable 3 repères visuels clés et orientez-vous grâce à votre carte mentale spatiale.</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+          <h4 style="color: var(--color-cen); margin-bottom: 4px;">🛒 4. Courses optimisées « Zéro Aller-Retour »</h4>
+          <p style="font-size: 13.5px; margin: 0;">Préparez votre liste et traversez le magasin en suivant un circuit unique sans jamais revenir en arrière sur vos pas, tout en résistant aux rayons distracteurs (inhibition active et mémoire de travail).</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+          <h4 style="color: var(--color-cen); margin-bottom: 4px;">✈️ 5. Planification détaillée d'un voyage ou d'un projet</h4>
+          <p style="font-size: 13.5px; margin: 0;">Organisez un séjour ou un week-end : étapes, transports, réservations, valise logique et gestion des imprévus (mémoire prospective et organisation séquentielle).</p>
+        </div>
+
+        <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin-bottom: 6px;">
+          <h4 style="color: var(--color-cen); margin-bottom: 4px;">🧶 6. Activités manuelles de minutie (Bricolage, Crochet, Tricot)</h4>
+          <p style="font-size: 13.5px; margin: 0;">Travail du bois, modélisme, crochet ou tricot suivant un schéma complexe de mailles. Sollicite l'inhibition motrice, le comptage mental et la coordination bimanuelle fine.</p>
         </div>
       </div>
     `;
   } else if (pillarType === 'sport') {
-    title.innerText = '🏃 Activité Physique Régulière & Pacing';
+    title.innerText = '🏃 5. Faire du Sport • Pacing & Régulation';
     content.innerHTML = `
       <div style="font-size: 14.5px; line-height: 1.6; color: var(--text-secondary);">
         <p>L'exercice physique régulier stabilise le système nerveux autonome et élève le seuil de déclenchement des auras :</p>
@@ -776,7 +823,7 @@ function openPillarModal(pillarType) {
         </div>
         <div style="background-color: var(--bg-card-subtle); border-radius: 12px; padding: 14px; margin: 12px 0;">
           <h4 style="color: var(--color-cen); margin-bottom: 4px;">🏊 2. La Natation</h4>
-          <p style="font-size: 13.5px; margin: 0;">Excellente régulation cardiovasculaire en décharge articulaire complète, particulièrement adaptée en cas de fragilité orthostatique (la pression hydrostatique de l'eau favorise le retour veineux cérébral).</p>
+          <p style="font-size: 13.5px; margin: 0;">Excellente régulation cardiovasculaire en décharge articulaire complète, particulièrement adaptée en cas de fragilité orthostatique (la pression hydrostatique favorise le retour veineux cérébral).</p>
         </div>
         <p style="font-size: 13.5px; font-weight: 600; color: var(--color-aura); margin-top: 10px;">
           ⚠️ Règle du Pacing : Pratiquez à intensité modérée et régulière sans chercher l'épuisement physique, qui pourrait déclencher une crise.
