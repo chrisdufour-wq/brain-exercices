@@ -737,9 +737,14 @@ function openPillarModal(pillarType) {
             <span class="resp-sub" id="respSub">Appuyez ci-dessous</span>
           </div>
         </div>
-        <button class="btn-primary" id="btnToggleResp" onclick="toggleRespiration()">
-          ▶️ Démarrer le guidage respiratoire
-        </button>
+        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%);" onclick="closePillarModal(); playRespirationVideoFullScreen();">
+            🎬 Voir la vidéo explicative du Dr Dufour (Plein écran)
+          </button>
+          <button class="btn-secondary" id="btnToggleResp" onclick="toggleRespiration()">
+            ▶️ Lancer le métronome visuel de respiration
+          </button>
+        </div>
       </div>
     `;
   } else if (pillarType === 'hypotension') {
@@ -792,6 +797,68 @@ function closePillarModal() {
   if (respInterval) {
     clearInterval(respInterval);
     respInterval = null;
+  }
+}
+
+// =============================================================================
+// LECTEUR VIDÉO PLEIN ÉCRAN (RESPIRATION DU DR DUFOUR)
+// =============================================================================
+function playRespirationVideoFullScreen() {
+  const overlay = document.getElementById('respirationVideoModal');
+  const video = document.getElementById('respirationVideoPlayer');
+  if (!overlay || !video) return;
+
+  // Réveiller l'audio iOS
+  unlockIOSAudioSession();
+
+  overlay.classList.add('active');
+  video.currentTime = 0;
+  video.muted = false;
+  video.volume = 1.0;
+
+  // Lancement de la lecture avec son
+  const playPromise = video.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(err => {
+      console.warn("Lecture vidéo audio directe restreinte, tentative sonore:", err);
+      video.muted = true;
+      video.play().then(() => {
+        video.muted = false;
+      }).catch(() => {});
+    });
+  }
+
+  // Tenter le plein écran natif iOS/Safari si disponible
+  if (video.webkitEnterFullscreen) {
+    try {
+      video.webkitEnterFullscreen();
+    } catch (e) {}
+  } else if (video.requestFullscreen) {
+    try {
+      video.requestFullscreen().catch(() => {});
+    } catch (e) {}
+  }
+
+  // Écouter la fin de la vidéo ou la sortie du plein écran natif
+  video.onended = () => {
+    closeRespirationVideo();
+  };
+  video.onwebkitendfullscreen = () => {
+    closeRespirationVideo();
+  };
+}
+
+function closeRespirationVideo() {
+  const overlay = document.getElementById('respirationVideoModal');
+  const video = document.getElementById('respirationVideoPlayer');
+  if (video) {
+    try {
+      video.pause();
+      video.currentTime = 0;
+    } catch (e) {}
+  }
+  if (overlay) {
+    overlay.classList.remove('active');
   }
 }
 

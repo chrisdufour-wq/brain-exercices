@@ -416,10 +416,10 @@
         <div class="hygiene-pillar-card">
           <h4>🫁 2. Diminuer votre stress</h4>
           <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 6px;">
-            Régulation du système nerveux autonome : expiration passive bouche ouverte pour décrisper la cage thoracique et éviter l'hyperventilation.
+            Régulation du système nerveux autonome : découvrez la technique de respiration apaisante expliquée en vidéo par le Dr Christophe Dufour.
           </p>
-          <button class="btn-pillar-cta" onclick="openPillarModal('respiration')">
-            🌬️ Lancer la technique respiratoire apaisante
+          <button class="btn-pillar-cta" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFF; border: none; font-weight: 700;" onclick="playRespirationVideoFullScreen()">
+            ▶️ Lancer la vidéo explicative (Plein écran avec le son)
           </button>
         </div>
 
@@ -696,6 +696,14 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL VIDÉO PLEIN ÉCRAN (RESPIRATION DU DR DUFOUR)
+       ======================================================================== -->
+  <div id="respirationVideoModal" class="fullscreen-video-overlay">
+    <button class="btn-video-overlay-close" onclick="closeRespirationVideo()">✕ Fermer la vidéo</button>
+    <video id="respirationVideoPlayer" src="videos/respiration_coherence_cardiaque.mp4" playsinline controls preload="auto"></video>
   </div>
 
   <script src="app.js"></script>
