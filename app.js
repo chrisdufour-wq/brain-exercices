@@ -314,6 +314,9 @@ function switchView(viewId) {
     closeFullScreenCameraOverlay();
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   }
+  if (viewId === 'journal') {
+    loadJournalEntries();
+  }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -1227,79 +1230,352 @@ async function handleNativeCameraFileSelected(event) {
 }
 
 // =============================================================================
-// 13. Journal de Bord & Vidéos
+// 13. Journal de Bord Clinique, Épisodes CFD & Vidéos
 // =============================================================================
+let currentSelectedOutcome = true;
+
+function openAddCfdModal() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const localIso = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+  const dtInput = document.getElementById('inputCfdDateTime');
+  if (dtInput) dtInput.value = localIso;
+
+  selectCfdOutcome(true);
+
+  document.querySelectorAll('#cfdTriggerTags .btn-tag').forEach(b => b.classList.remove('active'));
+
+  const notesInput = document.getElementById('inputCfdNotes');
+  if (notesInput) notesInput.value = '';
+
+  const modal = document.getElementById('modalAddCfdEvent');
+  if (modal) modal.classList.add('active');
+}
+
+function closeAddCfdModal() {
+  const modal = document.getElementById('modalAddCfdEvent');
+  if (modal) modal.classList.remove('active');
+}
+
+function selectCfdOutcome(isStopped) {
+  currentSelectedOutcome = isStopped;
+  const optStopped = document.getElementById('optCfdStopped');
+  const optOccurred = document.getElementById('optCfdOccurred');
+  if (isStopped) {
+    if (optStopped) optStopped.className = 'cfd-outcome-option selected-stopped';
+    if (optOccurred) optOccurred.className = 'cfd-outcome-option';
+  } else {
+    if (optStopped) optStopped.className = 'cfd-outcome-option';
+    if (optOccurred) optOccurred.className = 'cfd-outcome-option selected-occurred';
+  }
+}
+
+function toggleTriggerTag(button) {
+  button.classList.toggle('active');
+}
+
+async function saveManualCfdEvent() {
+  const dtInput = document.getElementById('inputCfdDateTime');
+  const dateValue = dtInput && dtInput.value ? new Date(dtInput.value).toISOString() : new Date().toISOString();
+  const notesInput = document.getElementById('inputCfdNotes');
+  const notes = notesInput ? notesInput.value.trim() : '';
+
+  const tags = [];
+  document.querySelectorAll('#cfdTriggerTags .btn-tag.active').forEach(b => tags.push(b.innerText.trim()));
+
+  const type = currentSelectedOutcome ? "CFD stoppée (Contrôle exécutif)" : "CFD survenue (Non stoppée)";
+
+  const eventData = {
+    date: dateValue,
+    type: type,
+    isStopped: currentSelectedOutcome,
+    isCfdEpisode: true,
+    tags: tags,
+    notes: notes,
+    videoId: null
+  };
+
+  try {
+    await saveJournalEvent(eventData);
+    closeAddCfdModal();
+    triggerHaptic([60, 40, 60]);
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de l'enregistrement de l'événement.");
+  }
+}
+
+function getAllJournalEvents() {
+  return new Promise((resolve) => {
+    if (!db) return resolve([]);
+    const tx = db.transaction(['events'], 'readonly');
+    const req = tx.objectStore('events').getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => resolve([]);
+  });
+}
+
+async function generateJournalReportText() {
+  const events = await getAllJournalEvents();
+  const patientName = getPatientName();
+  const now = new Date();
+  const reportDateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  // Statistiques
+  const cfdEpisodes = events.filter(e => e.isCfdEpisode || e.isStopped !== undefined);
+  const stoppedEpisodes = events.filter(e => e.isStopped === true || (e.type && (e.type.includes('stoppée') || e.type.includes('interrompue'))));
+  const occurredEpisodes = events.filter(e => e.isStopped === false || (e.type && e.type.includes('survenue')));
+  const videosCount = events.filter(e => e.videoId).length;
+  const stoppedRate = cfdEpisodes.length > 0 ? Math.round((stoppedEpisodes.length / cfdEpisodes.length) * 100) : 0;
+
+  // Tri antichronologique
+  const sorted = [...events].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  let text = `=========================================\n`;
+  text += `RAPPORT DE SUIVI CLINIQUE • PROTOCOLE CFD\n`;
+  text += `Dr Christophe Dufour • Médecine & Neurosciences\n`;
+  text += `=========================================\n\n`;
+  text += `Patient : ${patientName}\n`;
+  text += `Date du rapport : ${reportDateStr}\n\n`;
+
+  text += `-----------------------------------------\n`;
+  text += `SYNTHÈSE STATISTIQUE\n`;
+  text += `-----------------------------------------\n`;
+  text += `• Total des événements enregistrés : ${events.length}\n`;
+  text += `• Épisodes CFD consignés : ${cfdEpisodes.length}\n`;
+  text += `  - Crises stoppées / évitées : ${stoppedEpisodes.length} (${stoppedRate}%)\n`;
+  text += `  - Crises survenues : ${occurredEpisodes.length}\n`;
+  text += `• Vidéos enregistrées sur l'appareil : ${videosCount}\n`;
+  text += `  (Nota : les vidéos sont conservées sur le téléphone du patient pour analyse en direct en consultation)\n\n`;
+
+  text += `-----------------------------------------\n`;
+  text += `CHRONOLOGIE DÉTAILLÉE DU JOURNAL\n`;
+  text += `-----------------------------------------\n`;
+
+  if (sorted.length === 0) {
+    text += `Aucun événement consigné pour l'instant.\n`;
+  } else {
+    sorted.forEach((ev, idx) => {
+      const d = new Date(ev.date);
+      const dStr = d.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      text += `[${idx + 1}] ${dStr}\n`;
+      text += `    • Type : ${ev.type || 'Événement'}\n`;
+      if (ev.tags && ev.tags.length > 0) {
+        text += `    • Déclencheurs : ${ev.tags.join(', ')}\n`;
+      }
+      if (ev.notes) {
+        text += `    • Observations : ${ev.notes}\n`;
+      }
+      if (ev.videoId) {
+        text += `    • Vidéo : 1 enregistrement conservé localement sur le téléphone\n`;
+      }
+      text += `\n`;
+    });
+  }
+
+  text += `=========================================\n`;
+  text += `Document généré depuis l'application Anti-CFD\n`;
+  return text;
+}
+
+async function openExportModal() {
+  const reportText = await generateJournalReportText();
+  const pre = document.getElementById('exportReportPreview');
+  if (pre) pre.innerText = reportText;
+  const modal = document.getElementById('modalExportJournal');
+  if (modal) modal.classList.add('active');
+}
+
+function closeExportModal() {
+  const modal = document.getElementById('modalExportJournal');
+  if (modal) modal.classList.remove('active');
+}
+
+async function shareJournalReport() {
+  const reportText = await generateJournalReportText();
+  const title = `Journal clinique CFD - ${getPatientName()}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: title,
+        text: reportText
+      });
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+    }
+  }
+  const mailUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(reportText)}`;
+  window.location.href = mailUrl;
+}
+
+async function copyJournalReportToClipboard() {
+  const reportText = await generateJournalReportText();
+  try {
+    await navigator.clipboard.writeText(reportText);
+    alert("✅ Rapport copié dans le presse-papier ! Vous pouvez le coller dans un email ou un message pour votre médecin.");
+  } catch (e) {
+    prompt("Copiez le texte ci-dessous :", reportText);
+  }
+}
+
+async function downloadJournalReportTxt() {
+  const reportText = await generateJournalReportText();
+  const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const dStr = new Date().toISOString().slice(0, 10);
+  a.download = `rapport_cfd_${getPatientName()}_${dStr}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function shareVideoById(videoId) {
+  try {
+    const rec = await getVideoById(videoId);
+    if (!rec || !rec.blob) {
+      alert("Vidéo introuvable.");
+      return;
+    }
+    const ext = rec.blob.type && rec.blob.type.includes('mp4') ? 'mp4' : 'webm';
+    const fileName = `video_cfd_${getPatientName()}_${videoId}.${ext}`;
+    const file = new File([rec.blob], fileName, { type: rec.blob.type || 'video/webm' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: `Vidéo Clinique CFD - ${getPatientName()}`,
+        text: `Enregistrement vidéo d'un épisode CFD de ${getPatientName()} pour consultation médicale.`,
+        files: [file]
+      });
+    } else {
+      downloadVideoById(videoId);
+      alert("📥 La vidéo a été téléchargée dans vos fichiers. Vous pouvez la joindre à un message ou un email pour votre médecin.");
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.warn('Erreur partage vidéo:', err);
+      downloadVideoById(videoId);
+    }
+  }
+}
+
 async function loadJournalEntries() {
   const container = document.getElementById('journalEntriesList');
   if (!container || !db) return;
 
-  const tx = db.transaction(['events'], 'readonly');
-  const store = tx.objectStore('events');
-  const req = store.getAll();
+  const events = await getAllJournalEvents();
+  events.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  req.onsuccess = async () => {
-    const events = req.result.reverse();
-    if (events.length === 0) {
-      container.innerHTML = `
-        <div class="card" style="text-align: center; color: var(--text-muted); padding: 24px 16px;">
-          <p>Aucun événement enregistré pour l'instant.</p>
-        </div>
-      `;
-      return;
+  // Mise à jour des statistiques
+  const totalEpisodesEl = document.getElementById('statTotalEpisodes');
+  const stoppedPercentEl = document.getElementById('statStoppedPercent');
+  const totalVideosEl = document.getElementById('statTotalVideos');
+
+  const cfdEpisodes = events.filter(e => e.isCfdEpisode || e.isStopped !== undefined);
+  const stoppedEpisodes = events.filter(e => e.isStopped === true || (e.type && (e.type.includes('stoppée') || e.type.includes('interrompue'))));
+  const videosCount = events.filter(e => e.videoId).length;
+  const stoppedRate = cfdEpisodes.length > 0 ? Math.round((stoppedEpisodes.length / cfdEpisodes.length) * 100) : 0;
+
+  if (totalEpisodesEl) totalEpisodesEl.innerText = cfdEpisodes.length;
+  if (stoppedPercentEl) stoppedPercentEl.innerText = `${stoppedRate}%`;
+  if (totalVideosEl) totalVideosEl.innerText = videosCount;
+
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div class="card" style="text-align: center; color: var(--text-muted); padding: 32px 16px; background-color: var(--bg-card-subtle);">
+        <span style="font-size: 32px; display: block; margin-bottom: 8px;">📋</span>
+        <p style="margin: 0; font-weight: 600;">Aucun événement noté pour l'instant.</p>
+        <p style="font-size: 13px; margin-top: 4px;">Touchez « ➕ Noter un épisode CFD » ci-dessus pour consigner votre premier épisode.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  for (const ev of events) {
+    const d = new Date(ev.date);
+    const dateStr = d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    let cardClass = 'journal-entry-card';
+    let badgeHtml = '';
+
+    if (ev.isStopped === true || (ev.type && (ev.type.includes('stoppée') || ev.type.includes('interrompue')))) {
+      cardClass += ' stopped';
+      badgeHtml = `<span style="font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; background: var(--color-sn-bg); color: var(--color-sn);">✅ CFD Stoppée</span>`;
+    } else if (ev.isStopped === false || (ev.type && ev.type.includes('survenue'))) {
+      cardClass += ' occurred';
+      badgeHtml = `<span style="font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; background: var(--color-aura-bg); color: var(--color-aura);">⚠️ CFD Survenue</span>`;
+    } else if (ev.videoId) {
+      cardClass += ' video-only';
+      badgeHtml = `<span style="font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; background: var(--color-cen-bg); color: var(--color-cen);">📹 Vidéo Clinique</span>`;
+    } else {
+      badgeHtml = `<span style="font-size: 11.5px; padding: 3px 10px; border-radius: 9999px; background: var(--bg-card-subtle); color: var(--text-muted);">${ev.type || 'Événement'}</span>`;
     }
 
-    let html = '';
-    for (const ev of events) {
-      const d = new Date(ev.date);
-      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      
-      let videoBlock = '';
-      if (ev.videoId) {
-        try {
-          const videoRecord = await getVideoById(ev.videoId);
-          if (videoRecord && videoRecord.blob) {
-            const videoUrl = URL.createObjectURL(videoRecord.blob);
-            videoBlock = `
-              <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; background: #000;">
-                <video src="${videoUrl}" controls playsinline preload="metadata" style="width: 100%; max-height: 220px; display: block;"></video>
-              </div>
-              <div style="margin-top: 8px;">
-                <button class="btn-secondary" style="font-size: 12.5px; padding: 6px 10px;" onclick="downloadVideoById(${ev.videoId})">
-                  📥 Télécharger la vidéo
-                </button>
-              </div>
-            `;
-          }
-        } catch (e) {}
-      }
-
-      html += `
-        <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <strong style="font-size: 14px;">${dateStr}</strong>
-            <span style="font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: var(--bg-card-subtle);">${ev.type || 'Événement'}</span>
-          </div>
-          <p style="font-size: 13.5px; margin-bottom: 6px; color: var(--text-secondary);">${ev.notes || ''}</p>
-          ${videoBlock}
-          <div style="text-align: right; margin-top: 8px;">
-            <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px; color: #DC2626;" onclick="deleteJournalEntry(${ev.id}, ${ev.videoId || 'null'})">
-              Supprimer
-            </button>
-          </div>
-        </div>
-      `;
+    let tagsHtml = '';
+    if (ev.tags && ev.tags.length > 0) {
+      tagsHtml = `<div class="journal-entry-tags">` +
+        ev.tags.map(t => `<span class="journal-entry-tag-chip">⚡ ${t}</span>`).join('') +
+        `</div>`;
     }
-    container.innerHTML = html;
-  };
+
+    let videoBlock = '';
+    if (ev.videoId) {
+      try {
+        const videoRecord = await getVideoById(ev.videoId);
+        if (videoRecord && videoRecord.blob) {
+          const videoUrl = URL.createObjectURL(videoRecord.blob);
+          videoBlock = `
+            <div class="journal-video-container">
+              <video src="${videoUrl}" controls playsinline preload="metadata" style="width: 100%; max-height: 220px; display: block;"></video>
+            </div>
+            <div class="journal-video-actions">
+              <button class="btn-primary" onclick="shareVideoById(${ev.videoId})">
+                📤 Partager cette vidéo
+              </button>
+              <button class="btn-secondary" onclick="downloadVideoById(${ev.videoId})">
+                📥 Télécharger
+              </button>
+            </div>
+          `;
+        }
+      } catch (e) {}
+    }
+
+    html += `
+      <div class="${cardClass}">
+        <div class="journal-entry-header">
+          <span class="journal-entry-date">${dateStr}</span>
+          ${badgeHtml}
+        </div>
+        ${tagsHtml}
+        ${ev.notes ? `<p class="journal-entry-notes">${ev.notes}</p>` : ''}
+        ${videoBlock}
+        <div style="text-align: right; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+          <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px; color: #DC2626; border-color: rgba(220, 38, 38, 0.3);" onclick="deleteJournalEntry(${ev.id}, ${ev.videoId || 'null'})">
+            🗑️ Supprimer
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  container.innerHTML = html;
 }
 
 async function downloadVideoById(videoId) {
   try {
     const rec = await getVideoById(videoId);
     if (rec && rec.blob) {
+      const ext = rec.blob.type && rec.blob.type.includes('mp4') ? 'mp4' : 'webm';
       const a = document.createElement('a');
       a.href = URL.createObjectURL(rec.blob);
-      a.download = `video_clinique_${getPatientName()}_${videoId}.webm`;
+      a.download = `video_clinique_${getPatientName()}_${videoId}.${ext}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

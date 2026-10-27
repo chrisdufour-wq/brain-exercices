@@ -995,6 +995,217 @@ body {
 }
 
 /* =============================================================================
+   Styles Journal Clinique & Épisodes CFD
+   ============================================================================= */
+.journal-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.journal-toolbar .btn-primary {
+  flex: 1 1 180px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 14.5px;
+}
+
+.journal-toolbar .btn-secondary {
+  flex: 1 1 180px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 14.5px;
+}
+
+.journal-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.stat-chip-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-cen);
+  line-height: 1.2;
+}
+
+.stat-chip-lbl {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.cfd-outcome-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cfd-outcome-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-card-subtle);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cfd-outcome-option.selected-stopped {
+  border-color: var(--color-sn);
+  background-color: var(--color-sn-bg);
+}
+
+.cfd-outcome-option.selected-occurred {
+  border-color: var(--color-aura);
+  background-color: var(--color-aura-bg);
+}
+
+.outcome-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.outcome-text strong {
+  display: block;
+  font-size: 14.5px;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+
+.outcome-text span {
+  display: block;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.cfd-tags-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-tag {
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-tag.active {
+  background-color: var(--color-cen);
+  color: #FFFFFF;
+  border-color: var(--color-cen);
+}
+
+.journal-entry-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease;
+}
+
+.journal-entry-card.stopped {
+  border-left: 5px solid var(--color-sn);
+}
+
+.journal-entry-card.occurred {
+  border-left: 5px solid var(--color-aura);
+}
+
+.journal-entry-card.video-only {
+  border-left: 5px solid var(--color-cen);
+}
+
+.journal-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.journal-entry-date {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.journal-entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0;
+}
+
+.journal-entry-tag-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: var(--bg-card-subtle);
+  color: var(--text-muted);
+}
+
+.journal-entry-notes {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 6px 0;
+}
+
+.journal-video-container {
+  margin-top: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+
+.journal-video-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.journal-video-actions button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+}
+
+/* =============================================================================
    Écran de Verrouillage Opaque / Code Clinique Praticien
    ============================================================================= */
 .gate-lock-overlay {

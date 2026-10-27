@@ -437,21 +437,48 @@
     </section>
 
     <!-- ====================================================================
-         VUE 5 : JOURNAL LOCAL & VIDÉOTHÈQUE
+         VUE 5 : JOURNAL CLINIQUE CFD & VIDÉOS
          ==================================================================== -->
     <section id="view-journal" class="view-section">
-      <div style="margin-bottom: 12px;">
+      <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
         <button class="btn-secondary" style="width: auto; padding: 6px 14px;" onclick="switchView('landing')">
           ← Retour Accueil
         </button>
+        <span class="badge-tag badge-cen" style="margin-bottom: 0;">100% Hors-Ligne & Sécurisé</span>
       </div>
 
-      <div class="card">
-        <span class="badge-tag badge-cen">100% Hors-Ligne & Confidentiel</span>
-        <h2>Journal des Événements & Vidéos</h2>
-        <p style="font-size: 14px; margin-bottom: 16px;">
-          Toutes les données et vidéos enregistrées restent exclusivement sur cet appareil.
+      <div class="card" style="padding: 18px 16px;">
+        <h2 style="font-size: 20px; margin-bottom: 4px;">📓 Journal de Suivi CFD</h2>
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">
+          Notez chaque crise ou aura, évaluez si vous avez repris le contrôle, et transmettez la synthèse à votre médecin.
         </p>
+
+        <!-- Barre d'action rapide -->
+        <div class="journal-toolbar">
+          <button class="btn-primary" onclick="openAddCfdModal()">
+            ➕ Noter un épisode CFD
+          </button>
+          <button class="btn-secondary" onclick="openExportModal()">
+            📤 Envoyer le journal au médecin
+          </button>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="journal-stats-bar" id="journalStatsBar">
+          <div>
+            <div class="stat-chip-num" id="statTotalEpisodes">0</div>
+            <div class="stat-chip-lbl">Épisodes notés</div>
+          </div>
+          <div>
+            <div class="stat-chip-num" style="color: var(--color-sn);" id="statStoppedPercent">0%</div>
+            <div class="stat-chip-lbl">Crises stoppées</div>
+          </div>
+          <div>
+            <div class="stat-chip-num" style="color: var(--color-cen);" id="statTotalVideos">0</div>
+            <div class="stat-chip-lbl">Vidéos locales</div>
+          </div>
+        </div>
+
         <div id="journalEntriesList"></div>
       </div>
     </section>
@@ -545,6 +572,116 @@
         <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="lockAppAccess()">
           🔒 Verrouiller l'accès
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 1 : NOTER UN ÉPISODE CFD (MANUEL)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalAddCfdEvent" onclick="if(event.target===this) closeAddCfdModal()">
+    <div class="modal-sheet">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <span>➕</span> Noter un Épisode CFD
+        </h3>
+        <button style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted);" onclick="closeAddCfdModal()">✕</button>
+      </div>
+
+      <!-- 1. Date et Heure modifiables -->
+      <div style="margin-bottom: 16px;">
+        <label for="inputCfdDateTime" style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">
+          📅 Date et heure de l'événement (modifiable) :
+        </label>
+        <input type="datetime-local" id="inputCfdDateTime" style="width: 100%; padding: 12px; border-radius: var(--radius-sm); border: 2px solid var(--border-color); font-size: 16px; font-weight: 600; background: var(--bg-card); color: var(--text-primary); font-family: var(--font-base); box-sizing: border-box;">
+      </div>
+
+      <!-- 2. Résultat : CFD Stoppée ou Non -->
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 8px;">
+          🎯 Avez-vous stoppé la crise ?
+        </label>
+        <div class="cfd-outcome-selector">
+          <div class="cfd-outcome-option selected-stopped" id="optCfdStopped" onclick="selectCfdOutcome(true)">
+            <div class="outcome-icon">✅</div>
+            <div class="outcome-text">
+              <strong>OUI • CFD Stoppée / Évitée</strong>
+              <span>J'ai réengagé mon réseau exécutif (exercices) et repris le contrôle.</span>
+            </div>
+          </div>
+          <div class="cfd-outcome-option" id="optCfdOccurred" onclick="selectCfdOutcome(false)">
+            <div class="outcome-icon">⚠️</div>
+            <div class="outcome-text">
+              <strong>NON • CFD Survenue (Non stoppée)</strong>
+              <span>La crise s'est développée malgré tout ou est apparue sans aura.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Facteurs déclenchants -->
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">
+          ⚡ Facteurs déclenchants associés (optionnel) :
+        </label>
+        <div class="cfd-tags-grid" id="cfdTriggerTags">
+          <button type="button" class="btn-tag" onclick="toggleTriggerTag(this)">Fatigue</button>
+          <button type="button" class="btn-tag" onclick="toggleTriggerTag(this)">Stress / Émotion</button>
+          <button type="button" class="btn-tag" onclick="toggleTriggerTag(this)">Bruit / Foule</button>
+          <button type="button" class="btn-tag" onclick="toggleTriggerTag(this)">Post-effort</button>
+          <button type="button" class="btn-tag" onclick="toggleTriggerTag(this)">Manque de sommeil</button>
+          <button type="button" class="btn-tag" onclick="toggleTriggerTag(this)">Lumière / Écrans</button>
+        </div>
+      </div>
+
+      <!-- 4. Notes et Observations -->
+      <div style="margin-bottom: 20px;">
+        <label for="inputCfdNotes" style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">
+          📝 Notes & Observations pour le médecin (optionnel) :
+        </label>
+        <textarea id="inputCfdNotes" rows="3" placeholder="Ex: Sensation de flottement, fourmillements bras gauche, arrêt de la crise après 2 minutes de calcul..." style="width: 100%; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 14px; background: var(--bg-card); color: var(--text-primary); font-family: var(--font-base); resize: vertical; box-sizing: border-box;"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-secondary" style="flex: 1;" onclick="closeAddCfdModal()">Annuler</button>
+        <button class="btn-primary" style="flex: 2;" onclick="saveManualCfdEvent()">💾 Enregistrer l'épisode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2 : EXPORTER / ENVOYER LE JOURNAL AU MÉDECIN
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalExportJournal" onclick="if(event.target===this) closeExportModal()">
+    <div class="modal-sheet">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <span>📤</span> Rapport de Suivi pour le Médecin
+        </h3>
+        <button style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted);" onclick="closeExportModal()">✕</button>
+      </div>
+
+      <div style="background-color: var(--bg-card-subtle); padding: 12px; border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; border-left: 4px solid var(--color-cen);">
+        🔒 <strong>Confidentialité & Vidéos :</strong> Ce rapport résume tous vos épisodes et vos pourcentages de réussite. <strong>Les vidéos ne sont pas envoyées automatiquement</strong> : elles restent stockées en toute sécurité sur votre téléphone pour être montrées directement au médecin en consultation, ou partagées individuellement si vous le souhaitez.
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Aperçu de la synthèse :</label>
+        <pre id="exportReportPreview" style="background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; max-height: 200px; overflow-y: auto; white-space: pre-wrap; font-family: var(--font-mono); color: var(--text-primary); line-height: 1.45; margin-top: 4px;"></pre>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-primary" onclick="shareJournalReport()">
+          📤 Envoyer le rapport (Email / AirDrop / Partage)
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-secondary" style="flex: 1;" onclick="copyJournalReportToClipboard()">
+            📋 Copier le texte
+          </button>
+          <button class="btn-secondary" style="flex: 1;" onclick="downloadJournalReportTxt()">
+            📄 Télécharger (.txt)
+          </button>
+        </div>
       </div>
     </div>
   </div>
