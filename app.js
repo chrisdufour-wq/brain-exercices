@@ -80,18 +80,42 @@ function toggleWitnessVoice() {
   localStorage.setItem('anti_cfd_voice_enabled', isVoiceEnabled ? '1' : '0');
 }
 
+// =============================================================================
+// Déverrouillage audio session iOS (force la catégorie Playback)
+// =============================================================================
+let silentAudioUnlocker = null;
+function unlockIOSAudioSession() {
+  try {
+    if (!silentAudioUnlocker) {
+      silentAudioUnlocker = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+      silentAudioUnlocker.preload = 'auto';
+    }
+    silentAudioUnlocker.play().catch(() => {});
+  } catch (e) {}
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+  } catch (e) {}
+}
+
 function speakWitnessInstruction(text) {
   if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
   try {
-    // 1. Débloquer immédiatement l'état pause sur iOS Safari
+    // 1. Débloquer la session audio iOS
+    unlockIOSAudioSession();
+
+    // 2. Débloquer l'état en pause sur Safari iOS
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
     }
 
-    // 2. Annulation préalable
+    // 3. Annulation préalable de la diction précédente
     window.speechSynthesis.cancel();
 
-    // 3. Création synchrone de l'énoncé (impératif dans la pile d'exécution du clic utilisateur iOS)
+    // 4. Création synchrone de l'énoncé (langue fr-FR native sans forcer un objet voice tiers)
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'fr-FR';
     utterance.rate = 0.95;
@@ -99,12 +123,6 @@ function speakWitnessInstruction(text) {
 
     // Référence globale permanente pour empêcher le Garbage Collector d'iOS de couper la parole
     window._activeUtterance = utterance;
-
-    const voices = window.speechSynthesis.getVoices();
-    if (voices && voices.length > 0) {
-      const frVoice = voices.find(v => v.lang === 'fr-FR' || v.lang.startsWith('fr'));
-      if (frVoice) utterance.voice = frVoice;
-    }
 
     utterance.onend = () => {
       window._activeUtterance = null;
@@ -305,17 +323,12 @@ function openAuraHub() {
 
 function startWitnessWizard() {
   witnessCurrentStepIndex = 0;
-  // Débloquer le synthétiseur vocal et le moteur audio sur le geste utilisateur tactile direct
+  unlockIOSAudioSession();
   if ('speechSynthesis' in window) {
     try {
       window.speechSynthesis.resume();
-      const prime = new SpeechSynthesisUtterance(' ');
-      prime.volume = 0.01;
-      prime.rate = 10;
-      window.speechSynthesis.speak(prime);
     } catch (e) {}
   }
-  getAudioContext();
   switchView('temoin');
 }
 
