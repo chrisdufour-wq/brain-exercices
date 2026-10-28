@@ -755,52 +755,22 @@ const EXERCISES_DATA = [
     swapTip: "Au bip/vibration : la main gauche devient le pistolet, la droite devient le lapin !"
   },
   {
-    title: "Le Décompte et le Viseur",
-    target: "Tâche séquentielle 5-1 vs maintien isométrique de visée.",
-    image: "illustrations/02_decompte_et_viseur.jpg",
-    desc1: "Main gauche : Viseur fixe (index et pouce en cercle)",
-    desc2: "Main droite : Décompte digital (5, 4, 3, 2, 1)",
-    swapTip: "Au swap : la main droite se fige en viseur, la gauche reprend le décompte !"
-  },
-  {
-    title: "Cercle et Carré Graphomoteur",
-    target: "Tracé continu fluide curviligne vs tracé segmenté orthogonal.",
-    image: "illustrations/03_cercle_et_carre.jpg",
-    desc1: "Main gauche : Trace un cercle continu dans l'air",
-    desc2: "Main droite : Trace un carré avec 4 arrêts nets",
-    swapTip: "Permutez les formes au signal !"
-  },
-  {
-    title: "Pistolet vers le Ciel",
-    target: "Dissociation du pouce vs index vertical pur.",
+    title: "Pistolet vers le Ciel et Index Vertical",
+    target: "Dissociation du pouce vs index vertical pur (inhibition calleuse).",
+    video: "videos/02_pistolet_ciel.mp4",
     image: "illustrations/04_pistolet_ciel.jpg",
-    desc1: "Main gauche : Index dressé pur (pouce replié)",
-    desc2: "Main droite : L parfait (index vertical + pouce horizontal)",
-    swapTip: "Inhibez le réflexe de déplier le pouce des deux côtés !"
+    desc1: "Main gauche : L parfait (index vertical + pouce horizontal)",
+    desc2: "Main droite : Index dressé pur (pouce replié)",
+    swapTip: "Au bip/vibration : permutez les pouces, les deux index restent vers le ciel !"
   },
   {
     title: "Index et Auriculaire",
-    target: "Dissociation des rayons 2 et 5 (médian vs ulnaire).",
+    target: "Dissociation des rayons extrêmes 2 et 5 (médian vs ulnaire).",
+    video: "videos/03_index_et_auriculaire.mp4",
     image: "illustrations/05_index_et_auriculaire.jpg",
-    desc1: "Main gauche : Seul l'index est levé",
-    desc2: "Main droite : Seul l'auriculaire est levé",
-    swapTip: "Exercice distal d'urgence idéal, réalisable discrètement."
-  },
-  {
-    title: "Doigts Fléchis Croisés",
-    target: "Flexion isolée du pouce vs flexion de l'auriculaire.",
-    image: "illustrations/06_doigts_flechis_croises.jpg",
-    desc1: "Main gauche : Pouce plié sur la paume",
-    desc2: "Main droite : Auriculaire plié sur la paume",
-    swapTip: "Conservez les autres doigts parfaitement droits !"
-  },
-  {
-    title: "Trajectoires Spatiales Croisées",
-    target: "Mouvement 1D oscillatoire vs trajectoire 2D rectangulaire.",
-    image: "illustrations/07_trajectoires_spatiales.jpg",
-    desc1: "Main gauche : Oscillation verticale de haut en bas",
-    desc2: "Main droite : Parcours horizontal et vertical formant un rectangle",
-    swapTip: "Sature l'attention visuo-spatiale !"
+    desc1: "Main gauche : Index pointé vers le centre",
+    desc2: "Main droite : Petit doigt (auriculaire) pointé vers le centre",
+    swapTip: "Au bip/vibration : rentrez l'index et sortez le petit doigt, et inversement !"
   }
 ];
 
@@ -829,6 +799,21 @@ function pickExercise(idx) {
   if (exDesc1) exDesc1.innerText = ex.desc1;
   if (exDesc2) exDesc2.innerText = ex.desc2;
   if (exSwapTip) exSwapTip.innerText = ex.swapTip;
+
+  [0, 1, 2].forEach(i => {
+    const b = document.getElementById(`btnEx${i}`);
+    if (b) {
+      if (i === idx) {
+        b.style.backgroundColor = 'var(--color-cen)';
+        b.style.color = '#FFFFFF';
+        b.style.borderColor = 'var(--color-cen)';
+      } else {
+        b.style.backgroundColor = 'transparent';
+        b.style.color = 'var(--text-main)';
+        b.style.borderColor = 'var(--border-color)';
+      }
+    }
+  });
 
   if (ex.video && exVid) {
     exVid.src = ex.video;

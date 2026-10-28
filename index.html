@@ -312,12 +312,15 @@
           ▶️ Démarrer le Métronome de Swap
         </button>
 
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-          <button class="btn-outline" style="flex: 1; font-size: 12.5px; padding: 9px 4px;" onclick="pickExercise(0)">
-            🐰 Lapin & Pistolet (Vidéo)
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px;">
+          <button class="btn-outline" id="btnEx0" style="font-size: 11.5px; padding: 8px 2px; font-weight: 600;" onclick="pickExercise(0)">
+            🐰 Lapin
           </button>
-          <button class="btn-outline" style="flex: 1; font-size: 12.5px; padding: 9px 4px;" onclick="pickRandomExercise()">
-            🎲 Autre exercice
+          <button class="btn-outline" id="btnEx1" style="font-size: 11.5px; padding: 8px 2px; font-weight: 600;" onclick="pickExercise(1)">
+            👆 Ciel
+          </button>
+          <button class="btn-outline" id="btnEx2" style="font-size: 11.5px; padding: 8px 2px; font-weight: 600;" onclick="pickExercise(2)">
+            🤙 Auriculaire
           </button>
         </div>
       </div>

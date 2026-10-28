@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anti-cfd-cache-v17';
+const CACHE_NAME = 'anti-cfd-cache-v18';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -17,7 +17,9 @@ const ASSETS_TO_CACHE = [
   './illustrations/06_doigts_flechis_croises.jpg',
   './illustrations/07_trajectoires_spatiales.jpg',
   './videos/respiration_coherence_cardiaque.mp4',
-  './videos/01_lapin_et_pistolet.mp4'
+  './videos/01_lapin_et_pistolet.mp4',
+  './videos/02_pistolet_ciel.mp4',
+  './videos/03_index_et_auriculaire.mp4'
 ];
 
 self.addEventListener('install', (event) => {
