@@ -297,7 +297,8 @@
           <div class="swap-phase-badge" id="badgePhaseB">POSITION B (Arrivée)</div>
         </div>
 
-        <div class="swap-image-container">
+        <div class="swap-image-container" id="swapMediaContainer">
+          <video id="exVideo" autoplay loop muted playsinline preload="auto" style="display: none;"></video>
           <img id="exImage" src="illustrations/01_lapin_et_pistolet.jpg" alt="Mouvements asymétriques">
         </div>
 
@@ -310,6 +311,15 @@
         <button class="btn-primary" id="btnToggleSosMetronome" onclick="toggleSosMetronome()">
           ▶️ Démarrer le Métronome de Swap
         </button>
+
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button class="btn-outline" style="flex: 1; font-size: 12.5px; padding: 9px 4px;" onclick="pickExercise(0)">
+            🐰 Lapin & Pistolet (Vidéo)
+          </button>
+          <button class="btn-outline" style="flex: 1; font-size: 12.5px; padding: 9px 4px;" onclick="pickRandomExercise()">
+            🎲 Autre exercice
+          </button>
+        </div>
       </div>
 
       <button class="btn-secondary" style="color: var(--color-sn); border-color: var(--color-sn);" onclick="finishCognitiveTask()">

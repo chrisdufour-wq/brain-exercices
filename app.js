@@ -364,6 +364,20 @@ function switchView(viewId) {
     loadJournalEntries();
   }
 
+  // Arrêter la vidéo ou le métronome si on quitte les exercices moteurs
+  if (viewId !== 'swap-task') {
+    const exVid = document.getElementById('exVideo');
+    if (exVid) {
+      exVid.pause();
+    }
+    if (typeof metronomeInterval !== 'undefined' && metronomeInterval) {
+      clearInterval(metronomeInterval);
+      metronomeInterval = null;
+      const btn = document.getElementById('btnToggleSosMetronome');
+      if (btn) btn.innerText = '▶️ Démarrer le Métronome de Swap';
+    }
+  }
+
   // Watchdog d'inactivité de 45s pendant les tâches exécutives d'aura
   if (['calc-task', 'quizz-task', 'stroop-task', 'swap-task'].includes(viewId)) {
     startAuraWatchdog();
@@ -734,6 +748,7 @@ const EXERCISES_DATA = [
   {
     title: "Le Lapin et le Pistolet",
     target: "Inhibition du réflexe de symétrie.",
+    video: "videos/01_lapin_et_pistolet.mp4",
     image: "illustrations/01_lapin_et_pistolet.jpg",
     desc1: "Main gauche : Le Lapin (Index et majeur dressés)",
     desc2: "Main droite : Le Pistolet (Pouce levé, index pointé)",
@@ -789,20 +804,48 @@ const EXERCISES_DATA = [
   }
 ];
 
-function startSwapTask() {
-  pickRandomExercise();
+function startSwapTask(exerciseIndex = 0) {
+  pickExercise(exerciseIndex);
   switchView('swap-task');
 }
 
 function pickRandomExercise() {
   const randIdx = Math.floor(Math.random() * EXERCISES_DATA.length);
-  const ex = EXERCISES_DATA[randIdx];
-  document.getElementById('exTitle').innerText = ex.title;
-  document.getElementById('exTarget').innerText = ex.target;
-  document.getElementById('exImage').src = ex.image;
-  document.getElementById('exDesc1').innerText = ex.desc1;
-  document.getElementById('exDesc2').innerText = ex.desc2;
-  document.getElementById('exSwapTip').innerText = ex.swapTip;
+  pickExercise(randIdx);
+}
+
+function pickExercise(idx) {
+  const ex = EXERCISES_DATA[idx] || EXERCISES_DATA[0];
+  const exTitle = document.getElementById('exTitle');
+  const exTarget = document.getElementById('exTarget');
+  const exImg = document.getElementById('exImage');
+  const exVid = document.getElementById('exVideo');
+  const exDesc1 = document.getElementById('exDesc1');
+  const exDesc2 = document.getElementById('exDesc2');
+  const exSwapTip = document.getElementById('exSwapTip');
+
+  if (exTitle) exTitle.innerText = ex.title;
+  if (exTarget) exTarget.innerText = ex.target;
+  if (exDesc1) exDesc1.innerText = ex.desc1;
+  if (exDesc2) exDesc2.innerText = ex.desc2;
+  if (exSwapTip) exSwapTip.innerText = ex.swapTip;
+
+  if (ex.video && exVid) {
+    exVid.src = ex.video;
+    exVid.style.display = 'block';
+    if (exImg) exImg.style.display = 'none';
+    exVid.play().catch(() => {});
+  } else {
+    if (exVid) {
+      exVid.pause();
+      exVid.style.display = 'none';
+      exVid.removeAttribute('src');
+    }
+    if (exImg) {
+      exImg.src = ex.image;
+      exImg.style.display = 'block';
+    }
+  }
 }
 
 let metronomeInterval = null;
