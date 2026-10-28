@@ -572,9 +572,9 @@ body {
 }
 
 .swap-image-container {
-  background-color: #0b0f19;
+  background-color: #000000;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
+  border: 1px solid #1e293b;
   overflow: hidden;
   margin: 14px 0;
   text-align: center;
