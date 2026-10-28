@@ -755,15 +755,6 @@ const EXERCISES_DATA = [
     swapTip: "Au bip/vibration : la main gauche devient le pistolet, la droite devient le lapin !"
   },
   {
-    title: "Pistolet vers le Ciel et Index Vertical",
-    target: "Dissociation du pouce vs index vertical pur (inhibition calleuse).",
-    video: "videos/02_pistolet_ciel.mp4",
-    image: "illustrations/04_pistolet_ciel.jpg",
-    desc1: "Main gauche : L parfait (index vertical + pouce horizontal)",
-    desc2: "Main droite : Index dressé pur (pouce replié)",
-    swapTip: "Au bip/vibration : permutez les pouces, les deux index restent vers le ciel !"
-  },
-  {
     title: "Index et Auriculaire",
     target: "Dissociation des rayons extrêmes 2 et 5 (médian vs ulnaire).",
     video: "videos/03_index_et_auriculaire.mp4",
@@ -774,17 +765,21 @@ const EXERCISES_DATA = [
   }
 ];
 
+let currentExerciseIndex = 0;
+
 function startSwapTask(exerciseIndex = 0) {
-  pickExercise(exerciseIndex);
+  currentExerciseIndex = exerciseIndex;
+  pickExercise(currentExerciseIndex);
   switchView('swap-task');
 }
 
 function pickRandomExercise() {
-  const randIdx = Math.floor(Math.random() * EXERCISES_DATA.length);
-  pickExercise(randIdx);
+  currentExerciseIndex = (currentExerciseIndex + 1) % EXERCISES_DATA.length;
+  pickExercise(currentExerciseIndex);
 }
 
 function pickExercise(idx) {
+  currentExerciseIndex = idx;
   const ex = EXERCISES_DATA[idx] || EXERCISES_DATA[0];
   const exTitle = document.getElementById('exTitle');
   const exTarget = document.getElementById('exTarget');
@@ -799,21 +794,6 @@ function pickExercise(idx) {
   if (exDesc1) exDesc1.innerText = ex.desc1;
   if (exDesc2) exDesc2.innerText = ex.desc2;
   if (exSwapTip) exSwapTip.innerText = ex.swapTip;
-
-  [0, 1, 2].forEach(i => {
-    const b = document.getElementById(`btnEx${i}`);
-    if (b) {
-      if (i === idx) {
-        b.style.backgroundColor = 'var(--color-cen)';
-        b.style.color = '#FFFFFF';
-        b.style.borderColor = 'var(--color-cen)';
-      } else {
-        b.style.backgroundColor = 'transparent';
-        b.style.color = 'var(--text-main)';
-        b.style.borderColor = 'var(--border-color)';
-      }
-    }
-  });
 
   if (ex.video && exVid) {
     exVid.src = ex.video;

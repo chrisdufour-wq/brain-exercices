@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anti-cfd-cache-v22';
+const CACHE_NAME = 'anti-cfd-cache-v23';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -18,7 +18,6 @@ const ASSETS_TO_CACHE = [
   './illustrations/07_trajectoires_spatiales.jpg',
   './videos/respiration_coherence_cardiaque.mp4',
   './videos/01_lapin_et_pistolet.mp4',
-  './videos/02_pistolet_ciel.mp4',
   './videos/03_index_et_auriculaire.mp4'
 ];
 
