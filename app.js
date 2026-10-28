@@ -2009,10 +2009,16 @@ async function downloadJournalReportTxt() {
 let currentJournalFilter = 'all';
 
 function setJournalFilter(filterKey) {
-  currentJournalFilter = filterKey;
-  document.querySelectorAll('.btn-filter-pill').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = document.getElementById(`btnFilter${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`);
-  if (activeBtn) activeBtn.classList.add('active');
+  if (currentJournalFilter === filterKey) {
+    // Si on reclique sur le filtre actif, on le décoche (retour à l'état par défaut : tout afficher)
+    currentJournalFilter = 'all';
+    document.querySelectorAll('.btn-filter-pill').forEach(btn => btn.classList.remove('active'));
+  } else {
+    currentJournalFilter = filterKey;
+    document.querySelectorAll('.btn-filter-pill').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`btnFilter${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`);
+    if (activeBtn) activeBtn.classList.add('active');
+  }
   loadJournalEntries();
 }
 
@@ -2038,12 +2044,10 @@ async function loadJournalEntries() {
   if (stoppedPercentEl) stoppedPercentEl.innerText = `${stoppedRate}%`;
   if (totalVideosEl) totalVideosEl.innerText = videosEpisodes.length;
 
-  // Mise à jour des compteurs des filtres
-  const cAll = document.getElementById('countFilterAll');
+  // Mise à jour des compteurs des 3 filtres
   const cStopped = document.getElementById('countFilterStopped');
   const cOccurred = document.getElementById('countFilterOccurred');
   const cVideo = document.getElementById('countFilterVideo');
-  if (cAll) cAll.innerText = events.length;
   if (cStopped) cStopped.innerText = stoppedEpisodes.length;
   if (cOccurred) cOccurred.innerText = occurredEpisodes.length;
   if (cVideo) cVideo.innerText = videosEpisodes.length;
